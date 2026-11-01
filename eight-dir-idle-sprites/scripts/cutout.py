@@ -23,11 +23,12 @@ def bg_color(rgb):
     return np.median(b, axis=0)
 
 
-def holes_and_halo(rgba, bg, tol=6, min_hole=40, hole_std=4.0, hole_dist=6.0, reach=24, prop=None):
+def holes_and_halo(rgba, bg, tol=6, min_hole=40, hole_std=4.0, hole_dist=8.0, reach=24, prop=None):
     rgb = rgba[..., :3].astype(float)
     alpha = rgba[..., 3]
     dist = np.abs(rgb - bg).max(-1)
-    near = (dist <= tol) & (alpha > 0)
+    # pockets are JPEG-noisy: detect them with a wider tolerance than the border key, then judge flatness
+    near = (dist <= max(tol, 20)) & (alpha > 0)
     outside = alpha == 0
     lab, k = nd.label(near)
     remove = np.zeros(near.shape, bool)
@@ -39,6 +40,8 @@ def holes_and_halo(rgba, bg, tol=6, min_hole=40, hole_std=4.0, hole_dist=6.0, re
     # Topology rule: background trapped between a prop and the body (bow limb + string + cuff + cape)
     # can sit far (>reach px) from the outside, so the distance heuristic misses it. Any flat
     # near-matte pocket that touches a prop/weapon mask is background, whatever its distance.
+    near_small = nd.distance_transform_edt(~outside) <= 16 if outside.any() else np.zeros_like(near)
+    lum = rgb.mean(-1)
     prop_d = nd.binary_dilation(prop, iterations=4) if prop is not None and prop.any() else None
     for i in range(1, k + 1):
         m = lab == i
@@ -47,9 +50,23 @@ def holes_and_halo(rgba, bg, tol=6, min_hole=40, hole_std=4.0, hole_dist=6.0, re
         if ring[m].any() and n and (m & ~ring).sum() < 0.1 * n:
             remove |= m; report.append(("halo", n)); continue          # thin rim on silhouette
         flat = d.mean() <= hole_dist and rgb[m].std(0).max() <= hole_std
-        if n >= min_hole and prop_d is not None and (m & prop_d).any() and flat:
+        loose = d.mean() <= 14 and rgb[m].std(0).max() <= 6
+        if n >= min_hole and prop_d is not None and (m & prop_d).any() and (flat or (loose and n < 200)):
             ys, xs = np.nonzero(m)
             remove |= m; report.append(("prop_pocket", n, int(xs.min()), int(ys.min()), int(xs.max()), int(ys.max()))); continue
+        # small gaps between hair strands / gun parts / trigger guards: tiny flat matte specks walled by
+        # the dark outline and close to the silhouette. Eye shine sits deep in the face, so it is kept.
+        # notch: small light gap between hair strands open to the outside (touches the silhouette edge)
+        if 4 <= n < 200 and loose and ring[m].any():
+            rim = nd.binary_dilation(m, iterations=2) & ~m & ~outside
+            if rim.any() and (lum[rim] < 110).mean() >= 0.5:
+                ys, xs = np.nonzero(m)
+                remove |= m; report.append(("small_pocket", n, int(xs.min()), int(ys.min()), int(xs.max()), int(ys.max()))); continue
+        if 4 <= n < min_hole and loose and near_small[m].any():
+            rim = nd.binary_dilation(m, iterations=2) & ~m
+            if rim.any() and (lum[rim] < 110).mean() >= 0.6:
+                ys, xs = np.nonzero(m)
+                remove |= m; report.append(("small_pocket", n, int(xs.min()), int(ys.min()), int(xs.max()), int(ys.max()))); continue
         if n >= min_hole and near_out[m].any() and d.mean() <= hole_dist and rgb[m].std(0).max() <= hole_std:
             ys, xs = np.nonzero(m)
             remove |= m; report.append(("enclosed_bg", n, int(xs.min()), int(ys.min()), int(xs.max()), int(ys.max())))
@@ -131,7 +148,7 @@ def check(path, tol=6, min_hole=40, prop=None):
     vis = rgba[..., 3] > 0
     bg = np.array([255.0, 255.0, 255.0])  # matte colour to hunt for
     rem, rep = holes_and_halo(rgba, bg, tol, min_hole, prop=prop)
-    rep = [r for r in rep if r[0] in ('enclosed_bg', 'prop_pocket') or r[1] >= 20]
+    rep = [r for r in rep if r[0] in ('enclosed_bg', 'prop_pocket', 'small_pocket') or r[1] >= 20]
     return sum(r[1] for r in rep), rep
 
 

@@ -232,6 +232,9 @@ Every visible eye must keep a clear white highlight like the style sample; ask f
 - Not every generator can output alpha; check the tool's documented output formats (JPEG has no alpha). Record `source_alpha: native | keyed` in the manifest.
 - Why the fallback leaves residue: the generator anti-aliases the dark crayon outline into the white background, so after keying the outer 1–2 px still carry white (a light ring visible on dark/magenta), and background walled in by props is not reachable from the border.
 
+## Small specks (S7d)
+JPEG output leaves noisy near-white specks (not exact white) in hair-strand gaps, gun parts and trigger guards. `cutout.py` detects pockets with a wider tolerance (20) and removes small flat pockets walled by the dark outline near the silhouette, and small pockets touching a prop mask. Eye shine (deep inside the face) and large textured whites (beard, cuffs) are kept. Zoom hair tips and weapon holes on black.
+
 ## Outline fringe (S7c)
 `cutout.py` ends with an outline despill: pixels within 3 px of the outside take the colour of the nearest pixel deeper inside (the dark outline), keeping alpha. Interior art (eye shine, beard, cuffs) is untouched. `cutout.py --check` fails when more than 1% of the 2 px edge band is light/unsaturated, and `idle_rig.py` refuses such stills. Visual: zoom the contour (crown, cape, boots, bow) on black AND magenta at frames 0, 6, 12; any white ring = reject.
 
