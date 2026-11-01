@@ -3,3 +3,8 @@ tests/*/out_*/
 tests/*/old_method_idle24/
 __pycache__/
 *.pyc
+# generated idle outputs and game character packs never belong in the skill repo
+tests/*/results/
+tests/*/out/
+tests/*/old_method_idle24/
+*_idle24/

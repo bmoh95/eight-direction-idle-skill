@@ -24,7 +24,7 @@ fixed, so body texture, face and props cannot drift; motion becomes an explicit,
 
 Matching the bundled sample art style and character proportions is the most important requirement of this skill.
 - Default `style_ref` = `assets/styles/style-king.png` (landmarks and style words in `assets/styles/style_samples.json`;
-  `style-original-king.png`, `style-party.png` show the same family). Pass the sample as a real reference image on
+  `style-original-king.png` shows the same family). Pass the sample as a real reference image on
   every front / direction call.
 - Lock to the sample: soft crayon/felt grain texture, thick dark continuous outline, flat pastel palette with light
   shading, big dark oval eyes with one shine, blush, short stubby limbs, **2-head chibi** (`proportion_class: chibi_2head`,
@@ -157,7 +157,9 @@ python3 scripts/qa_idle.py  job/spec.json      # qa_report.json/.md (auto metric
 python3 scripts/pack_idle.py job/spec.json     # atlas, atlas_manifest.json, GIF previews, same-phase sheet, game-size strip
 ```
 Spec format: `templates/idle_spec.ground.example.json`, `templates/idle_spec.fly.example.json`
-(worked 8-direction specs: repo `tests/ground_king/spec_8dir.json`, `tests/fly_bunny/spec_8dir.json`).
+(worked 8-direction spec: repo `tests/fly_bunny/spec_8dir.json`; run it to regenerate outputs locally, outputs are not committed).
+Skill repo content rule: only scripts, templates, docs, style samples and small generic fixtures. Never commit
+game/project character idle packs, atlases, GIFs or generated frame outputs here; they belong in the game repo or a work folder.
 Relative paths inside a spec (`still`, masks, `out_dir`) resolve against the spec file's folder.
 `scripts/` here means this skill folder's `scripts/`; run with any cwd.
 Do one representative direction first, review it, then run all 8.

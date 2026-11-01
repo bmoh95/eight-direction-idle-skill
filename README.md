@@ -18,7 +18,7 @@ cp -r eight-dir-idle-sprites ~/.claude/skills/        # Claude Code 예시
 python3 -m venv .venv && . .venv/bin/activate
 pip install -r eight-dir-idle-sprites/scripts/requirements.txt
 # 3) 설치 확인: 동봉 테스트(지상형 왕)를 다시 생성 (약 1~2분)
-cd tests/ground_king && python3 ../../eight-dir-idle-sprites/scripts/idle_rig.py spec_8dir.json
+cd tests/fly_bunny && python3 ../../eight-dir-idle-sprites/scripts/idle_rig.py spec_8dir.json
 ```
 필요: Python 3.10+, Pillow, numpy, scipy, opencv-python-headless. 새 그림(텍스트→정면, 정면→방향)에는 **참조 이미지를 입력받는 이미지 생성/편집 도구**(어느 제공자든 무관)가 필요하고, idle 생성에는 필요 없습니다.
 아래 `SKILL_DIR`은 복사한 `eight-dir-idle-sprites` 폴더 경로입니다(예: `~/.claude/skills/eight-dir-idle-sprites`).
@@ -63,7 +63,7 @@ python3 SKILL_DIR/scripts/idle_rig.py  spec.json   # out_dir/DIR/DIR_000..023.pn
 python3 SKILL_DIR/scripts/qa_idle.py   spec.json   # qa_report.md / .json (자동 지표)
 python3 SKILL_DIR/scripts/pack_idle.py spec.json   # atlas_256.png, atlas_manifest.json, GIF, same_phase_sheet.png, game_size_strip.png
 ```
-`fps`, `duration_s`, 채널별 `amp_px`·`cycles`(정수)·`phase`는 spec에서 바꿉니다. 진폭은 **게임 표시 크기에서 1px 이상** 움직이게 고르세요. 실제 동작 예시는 `tests/ground_king/spec_8dir.json`, `tests/fly_bunny/spec_8dir.json`.
+`fps`, `duration_s`, 채널별 `amp_px`·`cycles`(정수)·`phase`는 spec에서 바꿉니다. 진폭은 **게임 표시 크기에서 1px 이상** 움직이게 고르세요. 실제 동작 예시는 `tests/fly_bunny/spec_8dir.json`.
 
 ## 게임 엔진에서 사용
 - 정확한 프레임: `out_dir/DIR/DIR_000..023.png` (PNG 시퀀스). 한 번에 쓰려면 `atlas_256.png`(행 = 방향, 열 = 프레임; 행 순서는 `atlas_manifest.json`의 `rows_directions`).
