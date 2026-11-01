@@ -36,6 +36,11 @@ direction. Unverified values stay `"unknown"` or `"estimated"`.
 
 ## Step 1 — 8 direction stills (generative edit; keep what already worked)
 
+**Gates (mandatory for new art): `references/new-art-gates.md` G0–G6.** Front must pass
+`templates/front_qa.checklist.md` (identity lock + true front) before any rotation; record each direction in
+`templates/stills_8dir_review.template.json`; all 8 stills frozen before any idle work.
+
+
 Follow `references/legacy/rotation-workflow.md` exactly (direction convention in
 `references/legacy/directions.json`: 0° faces viewer, yaw first turns to **screen left**; output order
 S,SW,W,NW,N,NE,E,SE; generate W,E,N, then diagonals anchored on their neighbours). Key rules:

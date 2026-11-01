@@ -1,0 +1,7 @@
+{"_note": "One row per direction (gate G4). status: pass | fail | needs_review. Only pass rows may be anchors.",
+ "front": "", "front_sha256": "",
+ "rows": {
+  "S":  {"file": "", "identity": "", "proportion": "", "palette": "", "hand_screen_side": "", "body_height_px": 0, "ground_y": 0, "guessed": [], "status": ""},
+  "SW": {}, "W": {}, "NW": {}, "N": {}, "NE": {}, "E": {}, "SE": {}},
+ "set_review": {"contact_sheet": "", "rotation_preview": "*_rotation_preview.gif", "status": ""},
+ "frozen_for_idle": false}
