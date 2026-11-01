@@ -56,3 +56,6 @@ contact_y). 3. Change only that input. 4. Regenerate that direction, re-run A an
 
 ## Camera gate
 - Default `camera: plane` (flat side/3/4 view, upright on a ground line). `top_down` only on explicit user request; reject mismatches either way.
+
+## Trapped matte gate
+- Cut out with `--prop-mask`; check with `--prop-mask`; idle_rig refuses stills with trapped matte next to rigid props. Inspect lower weapon cavities too, not only the upper bow.

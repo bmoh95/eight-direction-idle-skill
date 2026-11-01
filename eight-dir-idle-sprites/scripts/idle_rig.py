@@ -76,6 +76,17 @@ def validate(S, P):
                 g = (mk[..., 3] if mk is not None and mk.ndim == 3 and mk.shape[2] == 4 and mk[..., :3].max() == 0 else cv2.imread(P(m), 0)) if mk is not None else None
                 if g is None or (g > 127).sum() < 50:
                     err.append(f"{d}: mask {m} is empty (<50 px >127 after grayscale read); a blank rigid mask silently disables the prop lock")
+        # S7 matte gate: a still with trapped background (white pocket) next to a prop cannot be rigged
+        try:
+            sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+            import cutout as _co
+            from PIL import Image as _I
+            pm = _co.load_props([P(r["mask"]) for r in D.get("rigid", []) if r.get("mask") and os.path.exists(P(r["mask"]))], im.shape[:2])
+            n_m, rep_m = _co.check(P(D["still"]), prop=pm)
+            if n_m and not S.get("allow_matte"):
+                err.append(f"{d}: still has {n_m} px trapped background {rep_m[:4]}; rerun cutout.py RAW OUT --prop-mask <rigid masks> (S7)")
+        except ImportError as e:
+            warn.append(f"matte gate skipped: {e}")
     if len(sizes) > 1: err.append(f"stills have different canvas sizes {sizes}: same camera/scale/canvas required; re-frame stills, never auto-scale frames")
     return err, warn
 

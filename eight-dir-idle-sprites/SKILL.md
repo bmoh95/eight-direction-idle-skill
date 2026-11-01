@@ -226,8 +226,13 @@ snap keys to one ground line (`contact_y`; an airborne key may lift by a logged 
 ## Eye shine
 Every visible eye must keep a clear white highlight like the style sample; ask for it explicitly in the still prompt and verify on a zoom crop of the still and of a mid-cycle frame (front_qa S6). Flat eyes are a reject.
 
-## Props: no white background (S7)
-Look at every weapon/prop on black AND magenta at zoom: the gap between bow limb and string, between arm and body, inside rings must show the backdrop, not white. Any white pocket = run `cutout.py` again on the raw still; never ship it.
+## Props: no white background (S7) — mandatory, not optional cleanup
+Background trapped inside closed shapes (bow limb + string, string + cuff + cape, arm loops, staff rings) is a defect, never "minor cleanup".
+1. Make the prop mask first, then cut out with it: `cutout.py RAW SE.png --prop-mask masks/SE_bow.png` (repeat `--prop-mask` per weapon). Any flat matte-coloured pocket touching a prop mask is removed regardless of its distance to the outline.
+2. `cutout.py --check SE.png --prop-mask ...` must report `matte_px: 0`. Without `--prop-mask` the check only sees pockets within ~24 px of the outline and can falsely pass.
+3. `idle_rig.py` runs the same check with the spec's rigid masks and refuses to rig a still with trapped matte.
+4. Visual: zoom every cavity of every weapon (upper AND lower bow half, under hand/cuff, between string and cape) on black AND magenta for frames 0, 6, 12. Any white wedge = reject.
+Known failure (fixed): a pocket below the bow grip, walled by the thick limb, string, cuff and cape, sat >24 px from the outside, so the distance rule skipped it and the check passed while the GIF showed white.
 
 ## Camera: plane view by default (top-down only on request)
 Default camera is the **plane / side view**: a flat 2D sprite-sheet look, eye-level or slight high angle (at most ~15°), character standing upright on one horizontal ground line, the whole figure readable like the front sample. The 8 compass keys are **body facings on that plane**, not an overhead camera.
