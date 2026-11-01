@@ -131,6 +131,11 @@ All paths relative to the spec file's folder. Validate with `python3 scripts/idl
   then keep the right component (see `examples/make_prop_masks_example.py`).
 - **Open every `*_overlay.png`.** Masks are proposals. Typical misses: cheek blush on the silhouette
   edge, feet behind wings, far wing behind an ear. Fix by editing the mask PNG, not by tuning output.
+- Wings that sit behind the body in a fold-mode flap can detach from the body or expose an unlined body edge.
+  Per direction set `"root_backstop_px": 20-40` (keeps a static band of the wing root under the folding wing) and
+  `"body_seam_outline": {"px": 4-6}` (draws the style outline on the body edge that met the wing). Rest frame stays byte-exact.
+- If `make_masks.py wing` keeps 0 px (pale wings, cream body), build the mask by colour saturation and include the wing's
+  outer outline + alpha halo; check `fill_holes(body) - body` is ~0, otherwise the body hull "hidden torso" inpaint paints dark smears.
 - Back views where wings cover the torso: set `"flap_fold": -0.10` (spread mode) for that direction;
   folding would reveal torso that does not exist in the still. Record it.
 

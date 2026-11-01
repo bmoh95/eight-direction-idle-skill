@@ -93,6 +93,13 @@ def run(spec_path, check_only=False):
         body_rgba = src.copy(); body_rgba[wing, 3] = 0
         wing_rgba = src.copy(); wing_rgba[~wing, 3] = 0
         body_mask = (src[..., 3] > 16) & ~wing
+        so = D.get("body_seam_outline", ch.get("flap", {}).get("body_seam_outline"))
+        if so and wing.any():  # body edge that was hidden under/against the wing gets the style outline, so folded wings never expose an unlined or haloed body edge
+            px = int(so.get("px", 4)); seam = body_mask & ~nd.binary_erosion(body_mask, iterations=px) & nd.binary_dilation(wing, iterations=px + 2)
+            col = so.get("rgb")
+            if col is None:
+                dark = body_mask & (src[..., :3].max(-1) < 90); col = src[..., :3][dark].reshape(-1, 3).mean(0) if dark.any() else (40, 30, 30)
+            body_rgba[seam, :3] = np.array(col, dtype=src.dtype); body_rgba[seam, 3] = 255
         comps = []
         if wing.any():
             lab, k = nd.label(wing); ring = nd.binary_dilation(body_mask, iterations=10)
@@ -137,6 +144,10 @@ def run(spec_path, check_only=False):
                     L = R.T @ Sc @ R; tvec = np.array([hx, hy]) - L @ np.array([hx, hy])
                     layer = src.copy(); layer[~c, 3] = 0
                     pw = over(premul(cv2.warpAffine(layer, np.hstack([L, tvec[:, None]]).astype(np.float32), (w, h), flags=cv2.INTER_CUBIC)), pw)
+                rb = D.get("root_backstop_px", ch["flap"].get("root_backstop_px", 0))
+                if fold > 0 and rb:  # fold mode: keep a thin static band of the original wing root under the folding wing, so the wing never detaches from the body
+                    band = nd.binary_erosion(wing, iterations=6) & nd.binary_dilation(body_mask, iterations=int(rb)); bs = wing_rgba.copy(); bs[~band, 3] = 0
+                    pw = over(pw, premul(bs)); rec["root_backstop_px"] = int(rb)
                 if fold < 0:  # spread mode (back views): backstop ONLY the hinge band so the original wing outline never shows through (ghost/double edge)
                     bs = wing_rgba.copy(); bs[~(wing & ring), 3] = 0
                     pw = over(pw, premul(bs))
