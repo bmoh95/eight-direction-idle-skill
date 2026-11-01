@@ -215,5 +215,8 @@ snap keys to one ground line (`contact_y`; an airborne key may lift by a logged 
 (e.g. quadruped hop, biped walk) in the manifest; quadrupeds keep all four paws in the cycle. In `qa_idle.py`
 "locked region changed" / "foot contact moved" are expected for walk; review them visually instead.
 
+## Eye shine
+Every visible eye must keep a clear white highlight like the style sample; ask for it explicitly in the still prompt and verify on a zoom crop of the still and of a mid-cycle frame (front_qa S6). Flat eyes are a reject.
+
 ## Facing check (diagonals)
 On a top-down 8-direction camera, SE/SW/NE/NW mean a true ~45° diagonal: the body axis (tail→nose) runs corner to corner on screen, the face sits in the matching lower/upper quadrant of the head, and the tail/rear sits in the opposite corner. A mild 20–35° head turn on an upright front-ish body reads as E/W (or S): reject it and regenerate the still before rigging. For flying or prone diagonal poses, style_check's head_frac is not meaningful (the body is horizontal), so check proportion on the front still and compare the diagonal visually against the sample.

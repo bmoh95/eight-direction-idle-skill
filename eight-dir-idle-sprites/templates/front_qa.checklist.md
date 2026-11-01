@@ -18,3 +18,5 @@
 - [ ] No extra limbs, fused fingers, stray specks, text or watermark
 - [ ] File hashed and frozen (`original_bytes_sha256`); later steps use these bytes
 Result: pass / fail (reason) / needs_review (what) — reviewer: ____
+
+- [ ] S6 Eye shine: every eye that faces the camera has a clear white highlight (광) like style-king (glossy dark oval + small white dot). Flat/dead eyes = regenerate the still. Re-check on frame 0 and a mid-cycle frame of every idle.
