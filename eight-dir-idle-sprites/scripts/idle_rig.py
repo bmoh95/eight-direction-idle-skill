@@ -7,7 +7,8 @@ cannot drift. Channels (all optional, independent, periodic over the loop):
   bob     : whole-sprite INTEGER vertical translation (flyers/floaters only; never for grounded)
   rigid   : masks (weapon, crown, ...) that move rigidly with the deformation at their anchor, never stretch
 Phase is global time t = i/fps; every direction uses the same functions, so a direction switch at the
-same t lands on the same motion phase. Usage: idle_rig.py spec.json  (see templates/idle_spec.example.json)"""
+same t lands on the same motion phase. Usage: idle_rig.py spec.json  (see templates/idle_spec.ground.example.json / idle_spec.fly.example.json).
+       idle_rig.py spec.json --check   validates the spec only (no frames written)"""
 import json, math, sys, os, cv2, numpy as np
 from scipy import ndimage as nd
 
@@ -36,12 +37,52 @@ def shift_int(img, dy):
     else: o[:dy] = img[-dy:]
     return o
 
-def run(spec_path):
+CANON = ["S", "SW", "W", "NW", "N", "NE", "E", "SE"]
+
+def validate(S, P):
+    """Fail fast on spec mistakes that silently produce low-quality idles. Returns warnings."""
+    err, warn = [], []
+    kind = S.get("locomotion"); ch = S.get("channels", {})
+    if kind not in ("ground", "fly", "float"): err.append(f"locomotion must be ground|fly|float, got {kind!r}")
+    if not ch: warn.append("no channels: every frame will equal the still (static idle)")
+    for k, c in ch.items():
+        if not isinstance(c, dict): continue
+        cy = c.get("cycles", 1)
+        if not (isinstance(cy, (int, float)) and float(cy).is_integer() and cy >= 1): err.append(f"{k}.cycles must be an integer >= 1 (loop must close)")
+        if c.get("phase", 0.0) != 0.0: warn.append(f"{k}.phase != 0: frame 0 will NOT equal the approved still (QA frame0 check will flag it)")
+    if kind == "ground" and "bob" in ch: err.append("ground: use breathe, not bob (feet must stay planted)")
+    if kind == "fly" and "flap" not in ch and any(D.get("wing_mask") for D in S["directions"].values()):
+        err.append("fly with wing masks but no flap channel: a winged flyer must flap, not only breathe/bob")
+    if kind == "fly" and "breathe" in ch and "flap" not in ch: err.append("fly: breathe-only is not a flyer idle; add flap (+bob)")
+    if kind in ("fly", "float") and "bob" not in ch: warn.append(f"{kind}: no bob channel; airborne body will look parked")
+    keys = list(S["directions"])
+    bad = [k for k in keys if k not in CANON]
+    if bad: err.append(f"unknown direction keys {bad}; use {CANON}")
+    missing = [k for k in CANON if k not in keys]
+    if missing: warn.append(f"directions missing {missing}: do not call this an 8-direction idle")
+    sizes = set()
+    for d, D in S["directions"].items():
+        if not os.path.exists(P(D.get("still", ""))): err.append(f"{d}: still not found {D.get('still')}"); continue
+        im = cv2.imread(P(D["still"]), cv2.IMREAD_UNCHANGED)
+        if im is None or im.ndim != 3 or im.shape[2] != 4: err.append(f"{d}: still must be RGBA PNG"); continue
+        sizes.add(im.shape[:2])
+        if "breathe" in ch and not isinstance(D.get("contact_y"), (int, float)):
+            err.append(f"{d}: breathe needs numeric contact_y (measured base row); 'unknown' cannot pass")
+        if "flap" in ch and not D.get("wing_mask"): err.append(f"{d}: flap requested but no wing_mask")
+        for m in [D.get("wing_mask")] + [r.get("mask") for r in D.get("rigid", [])]:
+            if m and not os.path.exists(P(m)): err.append(f"{d}: mask not found {m}")
+    if len(sizes) > 1: err.append(f"stills have different canvas sizes {sizes}: same camera/scale/canvas required; re-frame stills, never auto-scale frames")
+    return err, warn
+
+def run(spec_path, check_only=False):
     S = json.load(open(spec_path)); base = os.path.dirname(os.path.abspath(spec_path))
     P = lambda p: p if os.path.isabs(p) else os.path.join(base, p)
     fps, dur = S["fps"], S["duration_s"]; n = round(fps * dur); assert abs(n - fps * dur) < 1e-6, "fps*duration must be integral"
     kind = S["locomotion"]; ch = S.get("channels", {})
-    assert not (kind == "ground" and "bob" in ch), "grounded characters keep feet planted: use breathe, not bob"
+    err, warn = validate(S, P)
+    for w_ in warn: print("WARN:", w_)
+    if err: sys.exit("SPEC ERRORS:\n  " + "\n  ".join(err))
+    if check_only: print("spec ok"); return
     out = P(S["out_dir"]); log = {"spec": spec_path, "fps": fps, "duration_s": dur, "display_frames_per_dir": n,
           "unique_poses_per_dir": n, "method": "part-layer deformation of locked still (idle_rig.py)", "directions": {}}
     for d, D in S["directions"].items():
@@ -115,4 +156,4 @@ def run(spec_path):
     json.dump(log, open(f"{out}/transforms.json", "w"), indent=1); print("wrote", out, n, "frames x", len(S["directions"]))
 
 if __name__ == "__main__":
-    run(sys.argv[1])
+    run(sys.argv[1], "--check" in sys.argv[2:])

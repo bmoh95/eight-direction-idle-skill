@@ -46,6 +46,22 @@ S,SW,W,NW,N,NE,E,SE; generate W,E,N, then diagonals anchored on their neighbours
 - Measure with `scripts/measure_sprite_framing.py` (body height, ground line), never fix by auto-scaling.
 - A rotation preview (stills cycled) is **not** an idle animation; name files accordingly.
 
+Handedness, worked out once and written into the manifest (`anatomical_sides.per_direction_screen_side`):
+the character's left hand is on **screen right** in S, SW, SE; on **screen left** in N, NW, NE; in W
+(facing screen left) the left hand is the near side (toward the camera) and in E (facing screen right)
+the far/occluded side; mirror for a right-handed weapon.
+Never "keep the weapon on the same screen side", and never mirror E↔W unless the user allows it and the
+design is symmetric (record it as a mirrored derivative).
+
+Per-direction edit prompt skeleton (any image tool that takes reference images):
+`Same character as reference 1 (identity, proportions, palette, texture, line weight, lighting). Rotate
+the whole body to <target_view from directions.json>. Same camera height, same scale, same ground line,
+same canvas <W×H>, transparent background. <weapon> stays in the character's <anatomical> hand (screen
+<side> in this view). Visible: <list>. Hidden: <list>. Back of <part> is unknown: keep it plain, continue
+visible shapes, add no new ornaments. No new props, no pose change, no mirroring.`
+Then open the result, compare against the front at the same zoom, measure, and record pass /
+`needs_review` per direction before using it as an anchor.
+
 ## Step 2 — idle plan (per character, shared by all 8 directions)
 
 Pick channels by structure; never invent anatomy:
@@ -59,7 +75,9 @@ Pick channels by structure; never invent anatomy:
 
 Defaults: 1.0 s, 24 fps, 24 display frames per direction, 192 total. The procedural route gives 24
 unique poses per direction; if you instead generate key poses and reuse them (holds, ping-pong),
-record `unique_poses_per_dir` vs `display_frames_per_dir`. Never append a copy of frame 0 at the end
+record `unique_poses_per_dir` vs `display_frames_per_dir` and the display map (e.g. `[0,0,1,1,2,...]`
+or ping-pong `0..k..1`); key pose 0 must be the approved still itself, every key is generated from the
+still (never from the previous key), and keys get the same QA as procedural frames. Never append a copy of frame 0 at the end
 (it stalls the loop); frame n-1 → frame 0 is the seam. Duration and fps are free parameters, but
 `cycles` of every channel must be an integer number per loop so the loop closes.
 
@@ -67,7 +85,8 @@ Amplitude: choose by **target display size**. The motion must move ≥1 display 
 (tested: 4 px head lift on a 1024 px canvas ≈ 0.4 px at 96 px display; raised to 8 px). Working guide,
 not a standard.
 
-Phase: all directions use the same functions of t = frame / n. In the engine keep one idle clock and
+Phase: all directions use the same functions of t = frame / n and the same channel parameters (only
+per-direction masks, `contact_y` and `flap_fold` differ). Keep `phase` = 0 so frame 0 is the still. In the engine keep one idle clock and
 switch rows without resetting it (`references/engine-integration.md`).
 
 ## Step 3 — masks (the only manual-judgement input)
@@ -84,6 +103,8 @@ switch rows without resetting it (`references/engine-integration.md`).
 ## Step 4 — generate, check, pack
 
 ```bash
+python3 scripts/idle_rig.py job/spec.json --check   # spec validation only: locomotion/channel rules, integer cycles,
+                                               # numeric contact_y, masks exist, same canvas, 8 canonical keys
 python3 scripts/idle_rig.py job/spec.json      # frames: out_dir/DIR/DIR_000..023.png + transforms.json
 python3 scripts/qa_idle.py  job/spec.json      # qa_report.json/.md (auto metrics)
 python3 scripts/pack_idle.py job/spec.json     # atlas, atlas_manifest.json, GIF previews, same-phase sheet, game-size strip
@@ -105,13 +126,18 @@ independent reviewer (another agent/model) for the visual pass.
 
 On a failure: fix only the cause (mask, amplitude, rigid region, per-direction fold), regenerate,
 re-run QA. If it still fails, mark that direction `needs_review` with the reason. Never hide drift with
-per-frame auto-scaling, alpha-bbox centring or cropping.
+per-frame auto-scaling, alpha-bbox centring or cropping. Do not "clean" intentional details flagged by
+the speck check (eye shine, sparkles, particles present in the still): compare against the still first.
+After a partial fix, re-run QA and the visual pass on **every** direction you touched and on the
+same-phase sheet, not only the frame you edited.
 
 ## Delivery checklist
 
 PNG sequences per direction, `transforms.json`, `atlas_manifest.json` (dirs, order, fps, loop, pivot,
 unique vs display frames), atlas, previews, `qa_report.md`, written visual review, original stills
-untouched. Say "8-direction idle complete" only if all 8 × n frames exist and passed review. GIF timing
+untouched. Say "8-direction idle complete" only if all 8 × n frames exist and passed review. Report
+engine playback only if you actually ran the engine; otherwise say "PNG/GIF preview only, engine not
+run". Report which checks were automatic vs visual and who did the visual review. GIF timing
 is centisecond-quantised: 24 fps cannot be uniform in GIF, so GIFs are previews only.
 
 ## Limits (state them to the user)

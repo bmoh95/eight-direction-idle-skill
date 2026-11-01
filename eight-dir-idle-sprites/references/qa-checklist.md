@@ -35,3 +35,12 @@ idles scored 8–70 locked MAD). They are not validated on other styles.
 1. Name the defect + frame(s) + direction. 2. Find the cause (mask, amplitude, rigid region, fold sign,
 contact_y). 3. Change only that input. 4. Regenerate that direction, re-run A and B.
 5. After 2 failed fixes: `needs_review`, keep the best candidate and the evidence.
+
+## D. Procedure gates (any agent/tool)
+- [ ] Manifest filled before frames; unknowns stay `unknown`/`estimated`.
+- [ ] Handedness table per direction (anatomical hand → screen side); no E↔W mirror unless allowed.
+- [ ] Rear/occluded assumptions listed in `occluded_or_guessed`.
+- [ ] `idle_rig.py spec.json --check` passes (no SPEC ERRORS; warnings explained).
+- [ ] Frame 0 = approved still; unique poses vs display frames and hold/ping-pong map recorded.
+- [ ] Winged flyer flaps; legless/floater has no invented feet; mech/rock has no human chest breath.
+- [ ] Engine playback claimed only if actually run; otherwise "preview only".
