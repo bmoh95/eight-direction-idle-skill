@@ -142,7 +142,7 @@ def main(argv=None):
         if args.candidate:
             entries = [{"key": args.direction or "candidate", "filename": str(args.candidate)}]
         else:
-            map_path = Path(__file__).resolve().parent.parent / "references" / "directions.json"
+            map_path = Path(__file__).resolve().parent.parent / "references" / "legacy" / "directions.json"
             entries = json.loads(map_path.read_text(encoding="utf-8"))["directions"]
     except (OSError, ValueError, KeyError) as error:
         print(json.dumps({"error": str(error), "images_modified": False}, ensure_ascii=False))

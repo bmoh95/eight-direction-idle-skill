@@ -109,7 +109,10 @@ python3 scripts/idle_rig.py job/spec.json      # frames: out_dir/DIR/DIR_000..02
 python3 scripts/qa_idle.py  job/spec.json      # qa_report.json/.md (auto metrics)
 python3 scripts/pack_idle.py job/spec.json     # atlas, atlas_manifest.json, GIF previews, same-phase sheet, game-size strip
 ```
-Spec format: `templates/idle_spec.ground.example.json`, `templates/idle_spec.fly.example.json`.
+Spec format: `templates/idle_spec.ground.example.json`, `templates/idle_spec.fly.example.json`
+(worked 8-direction specs: repo `tests/ground_king/spec_8dir.json`, `tests/fly_bunny/spec_8dir.json`).
+Relative paths inside a spec (`still`, masks, `out_dir`) resolve against the spec file's folder.
+`scripts/` here means this skill folder's `scripts/`; run with any cwd.
 Do one representative direction first, review it, then run all 8.
 
 What the generator guarantees (by construction, verified by `qa_idle.py`): no global scale, no

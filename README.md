@@ -10,12 +10,18 @@
 ## 설치
 ```bash
 git clone https://github.com/bmoh95/eight-direction-idle-skill.git
-# 스킬 폴더만 에이전트의 skills 디렉터리에 복사
-cp -r eight-direction-idle-skill/eight-dir-idle-sprites ~/.claude/skills/      # Claude Code 예시
-# 또는 사용하는 에이전트의 skills 경로(예: .cursor/skills/, ~/.agents/skills/)
-pip install -r eight-direction-idle-skill/eight-dir-idle-sprites/scripts/requirements.txt
+cd eight-direction-idle-skill
+# 1) 스킬 폴더만 사용하는 에이전트의 skills 디렉터리에 복사 (폴더 이름 유지)
+cp -r eight-dir-idle-sprites ~/.claude/skills/        # Claude Code 예시
+#    다른 에이전트: 프로젝트의 .cursor/skills/, ~/.agents/skills/ 등 해당 도구의 skills 경로
+# 2) 파이썬 의존성 (시스템 pip가 막혀 있으면 가상환경 사용)
+python3 -m venv .venv && . .venv/bin/activate
+pip install -r eight-dir-idle-sprites/scripts/requirements.txt
+# 3) 설치 확인: 동봉 테스트(지상형 왕)를 다시 생성 (약 1~2분)
+cd tests/ground_king && python3 ../../eight-dir-idle-sprites/scripts/idle_rig.py spec_8dir.json
 ```
-필요: Python 3.10+, Pillow, numpy, scipy, opencv-python-headless. 새 그림(정면/방향 생성)에는 참조 이미지를 받는 이미지 생성 도구가 필요하고, idle 생성에는 필요 없습니다.
+필요: Python 3.10+, Pillow, numpy, scipy, opencv-python-headless. 새 그림(텍스트→정면, 정면→방향)에는 **참조 이미지를 입력받는 이미지 생성/편집 도구**(어느 제공자든 무관)가 필요하고, idle 생성에는 필요 없습니다.
+아래 `SKILL_DIR`은 복사한 `eight-dir-idle-sprites` 폴더 경로입니다(예: `~/.claude/skills/eight-dir-idle-sprites`).
 
 ## 사용법 (에이전트에게 이렇게 요청)
 | 상황 | 요청 예시 |
@@ -27,20 +33,42 @@ pip install -r eight-direction-idle-skill/eight-dir-idle-sprites/scripts/require
 
 지상형은 발을 고정하고 몸통만 호흡하며, 날개 비행형은 날개 접기 + 상하 부유, 부유형은 부유만 합니다. 없는 날개나 다리를 만들지 않습니다.
 
-## 직접 실행
-```bash
-cd my_job
-python3 SKILL/scripts/make_masks.py wing input/SE.png masks/SE_wing.png     # 날개 마스크 제안 → *_overlay.png 꼭 눈으로 확인
-cp SKILL/templates/idle_spec.fly.example.json spec.json                     # 또는 ground 예시; 경로·contact_y 수정
-python3 SKILL/scripts/idle_rig.py spec.json    # out_dir/DIR/DIR_000..023.png + transforms.json
-python3 SKILL/scripts/qa_idle.py  spec.json    # qa_report.md
-python3 SKILL/scripts/pack_idle.py spec.json   # atlas_256.png, atlas_manifest.json, GIF, same_phase_sheet.png
-```
-`fps`, `duration_s`, 채널별 `amp_px`·`cycles`(정수)·`phase`는 spec에서 바꿉니다. 진폭은 **게임 표시 크기에서 1px 이상** 움직이게 고르세요.
+## 경로별 진행
+1. **텍스트만** → 에이전트가 정면 전신 1장 생성·검토·고정 → 8방향 스틸 → idle.
+2. **정면 이미지 1장** → 그 이미지를 원본 그대로 정체성 기준으로 사용(재스타일 금지) → 8방향 스틸(W, E, N 먼저, 대각선은 이웃 기준) → 방향별 검토 → idle.
+3. **8방향 스틸 보유 / idle만** → 그림 생성 없이 마스크·spec 작성 → idle 생성 → QA.
+각 작업 폴더에 `SKILL_DIR/templates/work_manifest.template.json`을 복사해 입력·무기 손·접점 등을 먼저 채웁니다.
 
-## 엔진 사용
-아틀라스 행 = 방향, 열 = 프레임. 방향을 바꿀 때 프레임 번호와 진행도를 유지하세요 (Godot `set_frame_and_progress`, Unity `Animator.Play(state, 0, normalizedTime)`).
-자세한 내용: `eight-dir-idle-sprites/references/engine-integration.md`. GIF는 1/100초 단위라 24fps가 정확하지 않으므로 미리보기용입니다.
+## 직접 실행 (idle)
+spec 안의 상대 경로(`still`, `mask`, `out_dir`)는 **spec 파일 위치 기준**입니다.
+```bash
+mkdir my_job && cd my_job && mkdir input masks     # input/S.png, SW.png ... SE.png (같은 캔버스·같은 지면선)
+```
+**지상형 예시(다리 있음, 무기 든 왕)** — 발 고정, 몸통 호흡, 무기는 rigid:
+```bash
+cp SKILL_DIR/templates/idle_spec.ground.example.json spec.json   # 방향별 still, contact_y(발 맨 아래 행) 수정
+python3 SKILL_DIR/scripts/measure_sprite_framing.py --source input/S.png --input-dir input   # 8방향 몸 높이·지면선 비교(읽기 전용)
+python3 SKILL_DIR/scripts/make_masks.py color input/S.png masks/S_bow.png --lo H S V --hi H S V --box x0 y0 x1 y1
+```
+**비행형 예시(날개 토끼)** — 날개 접기 + 정수 상하 부유, 발 고정 없음:
+```bash
+cp SKILL_DIR/templates/idle_spec.fly.example.json spec.json
+python3 SKILL_DIR/scripts/make_masks.py wing input/SE.png masks/SE_wing.png   # → masks/SE_wing_overlay.png 꼭 눈으로 확인
+```
+공통 생성·검사·패킹 (대표 방향 1개 먼저, 확인 후 8방향):
+```bash
+python3 SKILL_DIR/scripts/idle_rig.py  spec.json   # out_dir/DIR/DIR_000..023.png + transforms.json
+python3 SKILL_DIR/scripts/qa_idle.py   spec.json   # qa_report.md / .json (자동 지표)
+python3 SKILL_DIR/scripts/pack_idle.py spec.json   # atlas_256.png, atlas_manifest.json, GIF, same_phase_sheet.png, game_size_strip.png
+```
+`fps`, `duration_s`, 채널별 `amp_px`·`cycles`(정수)·`phase`는 spec에서 바꿉니다. 진폭은 **게임 표시 크기에서 1px 이상** 움직이게 고르세요. 실제 동작 예시는 `tests/ground_king/spec_8dir.json`, `tests/fly_bunny/spec_8dir.json`.
+
+## 게임 엔진에서 사용
+- 정확한 프레임: `out_dir/DIR/DIR_000..023.png` (PNG 시퀀스). 한 번에 쓰려면 `atlas_256.png`(행 = 방향, 열 = 프레임; 행 순서는 `atlas_manifest.json`의 `rows_directions`).
+- `atlas_manifest.json`: `cell`(칸 크기), `fps`, loop, pivot/접점(`contact_y_source_px` × `scale_from_source`), 고유/표시 프레임 수.
+- 피벗: 지상형 = 발 접점(8방향 동일), 비행형 = 몸 중심(부유는 프레임에 포함되어 있으니 엔진에서 추가 bob 금지).
+- 방향 전환 시 idle 시계를 리셋하지 말고 프레임 번호·진행도 유지: Godot 4 `AnimatedSprite2D.set_frame_and_progress(f, p)`, Unity `Animator.Play(state, 0, normalizedTime)`, 직접 구현 시 `index = int(t * fps) % n`.
+- 아틀라스 트리밍 시 오프셋 보존(안 하면 프레임마다 피벗이 흔들림). 자세한 내용: `eight-dir-idle-sprites/references/engine-integration.md`.
 
 ## 저장소 구성
 - `eight-dir-idle-sprites/` — 설치용 스킬 (SKILL.md, scripts, templates, references, assets, examples)
@@ -48,7 +76,12 @@ python3 SKILL/scripts/pack_idle.py spec.json   # atlas_256.png, atlas_manifest.j
 - `docs/test-report.md` — 테스트 결과 (기존 vs 새 방식, 남은 문제)
 - `tests/` — 지상형(왕)·비행형(토끼) 테스트 입력, 마스크, spec, 결과(256px 프레임·아틀라스·QA·미리보기)
 
-## 한계
-머리 돌리기·팔 위치 변경 같은 큰 동작은 변형으로 안 됩니다(키포즈 생성 경로 + QA 사용). 자동 마스크는 색 대비에 의존합니다. 자동 QA는 문제를 찾는 보조일 뿐이고 시각 검토가 필요합니다. 남은 문제는 `docs/test-report.md` 참고.
+## 한계 (솔직하게)
+- **GIF ≠ 정확한 24fps**: GIF 지연은 1/100초 단위라 40/40/50ms로 근사됩니다. GIF는 미리보기용이고, 정확한 타이밍은 PNG 시퀀스 + `atlas_manifest.json`의 `fps`.
+- **원본 해상도 프레임은 저장소에 없음**: 용량 때문에 `.gitignore` 처리(`tests/*/out_*/`). 저장소엔 256px 프레임·아틀라스·QA만 있고, 원본은 위 설치 확인 명령처럼 spec으로 재생성합니다.
+- **시각 검수 필수**: 자동 QA는 문제를 찾는 보조일 뿐 품질을 증명하지 않습니다. 정상 속도·느린 GIF·게임 표시 크기·같은 위상 시트를 눈으로 확인하고, 가능하면 다른 리뷰어(다른 에이전트/사람)가 한 번 더 봅니다.
+- 머리 돌리기·팔 위치 변경 같은 큰 동작은 변형으로 안 됩니다(키포즈 생성 경로 + QA, 드리프트 수리 시간 필요).
+- 자동 마스크는 색 대비(밝은 몸/채도 높은 날개)에 의존 — 다른 배색은 마스크를 직접 그려야 합니다. 오버레이 확인 필수.
+- 동봉 테스트 결과의 시각 판정은 제작자 자체 검토이며 외부 독립 검수가 아닙니다. 엔진 실속도 재생은 테스트하지 않았습니다. 남은 문제는 `docs/test-report.md`.
 
 라이선스: 코드/문서 MIT. 캐릭터 그림은 예시용으로 포함되며 재사용 라이선스가 아닙니다.
