@@ -253,6 +253,17 @@ Default camera is the **plane / side view**: a flat 2D sprite-sheet look, eye-le
 - Still prompts must state the camera: plane = "flat 2D side-view game sprite, eye-level camera, upright on a flat ground line, no top-down / no bird's-eye perspective"; top-down only if requested.
 
 ## Facing check (diagonals)
-**Plane view (default):** SE/SW = three-quarter view turned toward the viewer and to screen right/left (face and chest visible, near shoulder forward, feet on the same horizontal ground line, head NOT foreshortened, no view of the top of the head/shoulders). NE/NW = the same three-quarter turn seen from behind. The body stays upright; it does not lie along a screen diagonal. A face turned only ~10–20° that still reads as S is a reject; so is any still that looks down on the character.
+**Plane view (default):** SE/SW = three-quarter view turned toward the viewer and to screen right/left (face and chest visible, near shoulder forward, head, eyes and body all turned the same way (see Gaze below), feet on the same horizontal ground line, head NOT foreshortened, no view of the top of the head/shoulders). NE/NW = the same three-quarter turn seen from behind. The body stays upright; it does not lie along a screen diagonal. A face turned only ~10–20° that still reads as S is a reject; so is any still that looks down on the character.
 **Top-down (only if the user asked):** SE/SW/NE/NW mean a true ~45° diagonal on screen: the body axis (tail→nose) runs corner to corner, the face sits in the matching lower/upper quadrant of the head, rear in the opposite corner.
 Reject an unrequested top-down still, and reject a plane still when the user asked for top-down. For flying or prone poses style_check's head_frac is not meaningful; check proportion on the front still and compare visually against the sample.
+
+
+## Gaze follows the direction (S9)
+The eyes look where the body faces. In every direction except S (front), head, eyes and body share one heading; the character never looks at the camera.
+- **Plane SE/SW:** pupils sit toward the screen-right (SE) or screen-left (SW) side of each eye, and the face turns that way (nose and mouth off-centre toward that side, far eye narrower, far ear hidden). Eyes looking straight out at the viewer while the body is SE is a reject, even if the head is turned.
+- **E/W:** profile, eye looking along the heading. **N/NE/NW:** face hidden or mostly hidden, no eyes looking back at the camera.
+- **S (front):** the only direction where looking at the camera is correct.
+- **Top-down (only if the user asked):** the gaze follows that camera's diagonal; these plane rules are not applied.
+- **Does not change:** camera gate (plane by default), the diagonal 3/4 turn, eye shine (a highlight is not gaze, keep it on the visible eyes), left/right weapon hand, style lock, cutout gates.
+- **Prompt:** name it explicitly, e.g. "head, eyes and body all facing southeast; she looks toward the lower right of the screen, not at the viewer; pupils toward the right side of the eyes".
+- **QA:** zoom the eyes, nose and body axis of each non-front still and of frames 0/6/12 (idle_rig never moves pupils, so a wrong still stays wrong). Visual check is mandatory; there is no automatic gaze gate.

@@ -59,3 +59,6 @@ contact_y). 3. Change only that input. 4. Regenerate that direction, re-run A an
 
 ## Trapped matte gate
 - Cut out with `--prop-mask`; check with `--prop-mask`; idle_rig refuses stills with trapped matte next to rigid props. Inspect lower weapon cavities too, not only the upper bow.
+
+## Facing + gaze (S9)
+- Non-front directions: eyes look along the heading, never at the camera. Reject front gaze on SE/SW/E/W/N*. Eye shine still required.
