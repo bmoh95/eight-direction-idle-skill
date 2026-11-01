@@ -226,6 +226,15 @@ snap keys to one ground line (`contact_y`; an airborne key may lift by a logged 
 ## Eye shine
 Every visible eye must keep a clear white highlight like the style sample; ask for it explicitly in the still prompt and verify on a zoom crop of the still and of a mid-cycle frame (front_qa S6). Flat eyes are a reject.
 
+## Still generation: transparent first, white background only as fallback
+- **Preferred (alpha-capable generator):** request a transparent background / alpha PNG (or WebP) directly and keep the alpha. No matte means no trapped pockets and no white contour fringe. Still run `cutout.py --check` (it must find nothing).
+- **Fallback (generator outputs only a flat/solid background, often JPEG):** ask for one flat, uniform background colour, no shadow, no gradient, then immediately run `cutout.py RAW OUT.png --prop-mask <weapon masks>`. A white/solid-background image is never final art.
+- Not every generator can output alpha; check the tool's documented output formats (JPEG has no alpha). Record `source_alpha: native | keyed` in the manifest.
+- Why the fallback leaves residue: the generator anti-aliases the dark crayon outline into the white background, so after keying the outer 1–2 px still carry white (a light ring visible on dark/magenta), and background walled in by props is not reachable from the border.
+
+## Outline fringe (S7c)
+`cutout.py` ends with an outline despill: pixels within 3 px of the outside take the colour of the nearest pixel deeper inside (the dark outline), keeping alpha. Interior art (eye shine, beard, cuffs) is untouched. `cutout.py --check` fails when more than 1% of the 2 px edge band is light/unsaturated, and `idle_rig.py` refuses such stills. Visual: zoom the contour (crown, cape, boots, bow) on black AND magenta at frames 0, 6, 12; any white ring = reject.
+
 ## Props: no white background (S7) — mandatory, not optional cleanup
 Background trapped inside closed shapes (bow limb + string, string + cuff + cape, arm loops, staff rings) is a defect, never "minor cleanup".
 1. Make the prop mask first, then cut out with it: `cutout.py RAW SE.png --prop-mask masks/SE_bow.png` (repeat `--prop-mask` per weapon). Any flat matte-coloured pocket touching a prop mask is removed regardless of its distance to the outline.

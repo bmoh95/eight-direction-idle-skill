@@ -9,7 +9,8 @@ shows as a white patch, and the anti-aliased rim keeps a 1-2px white halo.
 Usage:
   cutout.py RAW OUT.png [--tol 12] [--min-hole 40]   # make RGBA still
   cutout.py RAW OUT.png --prop-mask masks/bow.png   # also clear pockets touching a prop
-  cutout.py --check STILL.png [--prop-mask M]                         # report leftover matte (exit 1 if found)
+  cutout.py --check STILL.png [--prop-mask M]   # fails on trapped matte OR white outline fringe (>1% of 2px edge band light)
+  #                        # report leftover matte (exit 1 if found)
 """
 import argparse, sys
 import numpy as np
@@ -81,6 +82,31 @@ def load_props(paths, shape):
     return m
 
 
+def decontaminate(rgba, depth=3):
+    """Outline despill: pixels within `depth` px of the outside take the colour of the nearest
+    pixel at >= depth (the dark crayon outline), keeping their alpha. Removes the white fringe a
+    white-background generation leaves on the contour; interior art (eye shine, beard) is untouched."""
+    a = rgba[..., 3]
+    out = a < 8
+    if not out.any(): return rgba
+    d = nd.distance_transform_edt(~out)
+    core = d > depth
+    _, (iy, ix) = nd.distance_transform_edt(~core, return_indices=True)
+    band = (~out) & (~core)
+    res = rgba.copy()
+    res[band, :3] = rgba[iy[band], ix[band], :3]
+    return res
+
+
+def fringe(rgba, band_px=2, light=170):
+    """Count light, unsaturated pixels in the outer `band_px` of the silhouette (white halo)."""
+    a = rgba[..., 3]; out = a < 8
+    band = nd.binary_dilation(out, iterations=band_px) & ~out
+    rgb = rgba[..., :3].astype(float)
+    lt = band & (rgb.mean(-1) > light) & ((rgb.max(-1) - rgb.min(-1)) < 60)
+    return int(lt.sum()), int(band.sum())
+
+
 def cutout(raw, tol=6, min_hole=40, prop=None):
     rgb = np.array(raw.convert("RGB")).astype(float)
     bg = bg_color(rgb)
@@ -95,6 +121,7 @@ def cutout(raw, tol=6, min_hole=40, prop=None):
         if not rem.any(): break
         rgba[rem] = 0; rep += r
     rgba = defringe(rgba, bg, tol)
+    rgba = decontaminate(rgba)
     return rgba, bg, rep
 
 
@@ -118,8 +145,10 @@ if __name__ == "__main__":
     if A.check:
         shp = Image.open(A.inp).size[::-1]
         n, rep = check(A.inp, A.tol, A.min_hole, load_props(A.prop_mask, shp))
-        print({"matte_px": int(n), "regions": rep[:20]})
-        sys.exit(1 if n else 0)
+        fl, fb = fringe(np.array(Image.open(A.inp).convert("RGBA")))
+        bad_f = fl > 0.01 * max(fb, 1)
+        print({"matte_px": int(n), "regions": rep[:20], "outline_fringe_px": fl, "outline_band_px": fb, "fringe_fail": bool(bad_f)})
+        sys.exit(1 if (n or bad_f) else 0)
     raw = Image.open(A.inp)
     rgba, bg, rep = cutout(raw, A.tol, A.min_hole, load_props(A.prop_mask, raw.size[::-1]))
     Image.fromarray(rgba).save(A.out)

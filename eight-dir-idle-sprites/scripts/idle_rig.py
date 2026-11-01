@@ -83,6 +83,9 @@ def validate(S, P):
             from PIL import Image as _I
             pm = _co.load_props([P(r["mask"]) for r in D.get("rigid", []) if r.get("mask") and os.path.exists(P(r["mask"]))], im.shape[:2])
             n_m, rep_m = _co.check(P(D["still"]), prop=pm)
+            fl, fb = _co.fringe(cv2.cvtColor(im, cv2.COLOR_BGRA2RGBA))
+            if fl > 0.01 * max(fb, 1) and not S.get("allow_matte"):
+                err.append(f"{d}: white outline fringe {fl}/{fb} edge px light; rerun cutout.py (outline despill) (S7c)")
             if n_m and not S.get("allow_matte"):
                 err.append(f"{d}: still has {n_m} px trapped background {rep_m[:4]}; rerun cutout.py RAW OUT --prop-mask <rigid masks> (S7)")
         except ImportError as e:
