@@ -92,4 +92,7 @@ def run(spec_path):
     print(open(f"{out}/qa_report.md").read())
 
 if __name__ == "__main__":
-    run(sys.argv[1])
+    import argparse
+    ap = argparse.ArgumentParser(description="Auto QA metrics for idle frames written by idle_rig.py (flags problems; never proves quality).")
+    ap.add_argument("spec", help="the same idle spec JSON passed to idle_rig.py")
+    run(ap.parse_args().spec)

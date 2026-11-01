@@ -114,6 +114,14 @@ Spec format: `templates/idle_spec.ground.example.json`, `templates/idle_spec.fly
 Relative paths inside a spec (`still`, masks, `out_dir`) resolve against the spec file's folder.
 `scripts/` here means this skill folder's `scripts/`; run with any cwd.
 Do one representative direction first, review it, then run all 8.
+The example specs in `templates/` point at placeholder `input/*.png` stills, so `--check` fails on
+them until you replace the paths with your own stills; that is expected.
+Already have idle frames from another source (generated key poses, hand-drawn)? Use
+`scripts/assemble_idle.py --plan plan.json --output-dir new_dir/` (plan format:
+`templates/assemble_plan.template.json`; first state must be `neutral` = the approved still). It only
+assembles timing/atlas/previews; it does not make motion or check identity, and `qa_idle.py` does not
+read its output (no `transforms.json`), so the visual review and the `qa-checklist.md` items are the
+only gate for that route.
 
 What the generator guarantees (by construction, verified by `qa_idle.py`): no global scale, no
 horizontal shift; ground contact rows unchanged; rest phase byte-identical to the still; rigid props

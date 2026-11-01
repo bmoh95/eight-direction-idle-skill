@@ -156,4 +156,8 @@ def run(spec_path, check_only=False):
     json.dump(log, open(f"{out}/transforms.json", "w"), indent=1); print("wrote", out, n, "frames x", len(S["directions"]))
 
 if __name__ == "__main__":
-    run(sys.argv[1], "--check" in sys.argv[2:])
+    import argparse
+    ap = argparse.ArgumentParser(description="Deterministic part-layer idle generator (frames from one locked still per direction).")
+    ap.add_argument("spec", help="idle spec JSON (see templates/idle_spec.*.example.json)")
+    ap.add_argument("--check", action="store_true", help="validate the spec only; write no frames")
+    a = ap.parse_args(); run(a.spec, a.check)
