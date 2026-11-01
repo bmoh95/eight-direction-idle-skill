@@ -1,4 +1,5 @@
 {
+  "camera": "plane  // plane (default) | top_down (only if user explicitly asked)",
   "_note": "One row per direction (gate G4). status: pass | fail | needs_review. Only pass rows may be anchors.",
   "front": "",
   "front_sha256": "",

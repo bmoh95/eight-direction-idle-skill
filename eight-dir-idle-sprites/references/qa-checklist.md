@@ -53,3 +53,6 @@ contact_y). 3. Change only that input. 4. Regenerate that direction, re-run A an
 
 ## S7 — background matte on props
 - `scripts/cutout.py --check` = 0 on still, frame 0, mid frame. Bow-string gap and arm/cape gaps must show the backdrop on black/magenta zooms.
+
+## Camera gate
+- Default `camera: plane` (flat side/3/4 view, upright on a ground line). `top_down` only on explicit user request; reject mismatches either way.

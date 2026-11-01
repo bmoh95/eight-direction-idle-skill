@@ -21,3 +21,4 @@ Result: pass / fail (reason) / needs_review (what) — reviewer: ____
 
 - [ ] S6 Eye shine: every eye that faces the camera has a clear white highlight (광) like style-king (glossy dark oval + small white dot). Flat/dead eyes = regenerate the still. Re-check on frame 0 and a mid-cycle frame of every idle.
 - [ ] S7 No background matte: on black and magenta zooms, no white/near-white pocket or rim around weapons/props (bow-string gap, arm/cape gaps, staff loops) or silhouette. `scripts/cutout.py --check` must report 0 on the still, frame 0 and a mid-cycle frame.
+- [ ] S8 Camera: plane/side view (eye-level, upright on a flat ground line) unless the user explicitly asked for top-down/overhead/탑다운. Unrequested top-down (looking down on head/shoulders, body along a screen diagonal) = reject; plane view when top-down was requested = reject.

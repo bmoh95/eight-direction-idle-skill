@@ -229,5 +229,13 @@ Every visible eye must keep a clear white highlight like the style sample; ask f
 ## Props: no white background (S7)
 Look at every weapon/prop on black AND magenta at zoom: the gap between bow limb and string, between arm and body, inside rings must show the backdrop, not white. Any white pocket = run `cutout.py` again on the raw still; never ship it.
 
+## Camera: plane view by default (top-down only on request)
+Default camera is the **plane / side view**: a flat 2D sprite-sheet look, eye-level or slight high angle (at most ~15°), character standing upright on one horizontal ground line, the whole figure readable like the front sample. The 8 compass keys are **body facings on that plane**, not an overhead camera.
+- Use a **top-down / overhead / bird's-eye / isometric-from-above** camera **only when the user explicitly asks** for it ("top-down", "overhead", "bird's-eye", "isometric", "탑다운", "쿼터뷰", "위에서 내려다본"). Record it as `camera: "top_down"` in the manifest; otherwise record `camera: "plane"`.
+- Never infer top-down from "8 directions", "diagonal", an earlier run, or a game genre. When unsure, use plane view.
+- Still prompts must state the camera: plane = "flat 2D side-view game sprite, eye-level camera, upright on a flat ground line, no top-down / no bird's-eye perspective"; top-down only if requested.
+
 ## Facing check (diagonals)
-On a top-down 8-direction camera, SE/SW/NE/NW mean a true ~45° diagonal: the body axis (tail→nose) runs corner to corner on screen, the face sits in the matching lower/upper quadrant of the head, and the tail/rear sits in the opposite corner. A mild 20–35° head turn on an upright front-ish body reads as E/W (or S): reject it and regenerate the still before rigging. For flying or prone diagonal poses, style_check's head_frac is not meaningful (the body is horizontal), so check proportion on the front still and compare the diagonal visually against the sample.
+**Plane view (default):** SE/SW = three-quarter view turned toward the viewer and to screen right/left (face and chest visible, near shoulder forward, feet on the same horizontal ground line, head NOT foreshortened, no view of the top of the head/shoulders). NE/NW = the same three-quarter turn seen from behind. The body stays upright; it does not lie along a screen diagonal. A face turned only ~10–20° that still reads as S is a reject; so is any still that looks down on the character.
+**Top-down (only if the user asked):** SE/SW/NE/NW mean a true ~45° diagonal on screen: the body axis (tail→nose) runs corner to corner, the face sits in the matching lower/upper quadrant of the head, rear in the opposite corner.
+Reject an unrequested top-down still, and reject a plane still when the user asked for top-down. For flying or prone poses style_check's head_frac is not meaningful; check proportion on the front still and compare visually against the sample.

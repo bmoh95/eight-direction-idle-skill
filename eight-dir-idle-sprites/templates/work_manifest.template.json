@@ -1,4 +1,5 @@
 {
+  "camera": "plane  // plane (default) | top_down (only if user explicitly asked)",
   "_note": "Fill BEFORE making frames. Use \"unknown\" or {\"value\":..,\"status\":\"estimated\"} for anything not verified in the image.",
   "character": {
     "name": "",

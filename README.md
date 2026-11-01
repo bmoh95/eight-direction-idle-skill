@@ -93,3 +93,8 @@ python3 SKILL_DIR/scripts/pack_idle.py spec.json   # atlas_256.png, atlas_manife
 New fronts and direction stills must match the bundled sample (`assets/styles/style-king.png`): crayon/felt grain,
 thick dark outline, pastel palette, 2-head chibi proportions. An input image gives identity only. Check with
 `python3 eight-dir-idle-sprites/scripts/style_check.py --sample eight-dir-idle-sprites/assets/styles/style-king.png --candidate front.png --head-top-y Y1 --head-bottom-y Y2 --feet-y Y3`.
+
+## 카메라(시점) 기본값
+- 기본은 **평면(사이드/살짝 3/4) 뷰**입니다. 캐릭터가 수평 지면선 위에 똑바로 서 있는 2D 스프라이트 구도입니다.
+- **탑다운/위에서 내려다본/쿼터뷰/isometric** 구도는 사용자가 명시적으로 요청했을 때만 사용합니다.
+- 대각선(SE 등)은 평면 뷰에서 3/4로 돌아선 자세이며, 화면 대각선으로 눕는 몸 방향은 탑다운 요청 시에만 적용합니다.
