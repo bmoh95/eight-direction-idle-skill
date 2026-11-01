@@ -78,6 +78,52 @@ def holes_and_halo(rgba, bg, tol=6, min_hole=40, hole_std=4.0, hole_dist=8.0, re
     return remove, report
 
 
+# S7g prop-cavity rule: background walled off between a thin prop (bow limb + string, staff, kunai, gun)
+# and the body is off-matte after JPEG/glow blending, so the purity rule misses it. Topology decides instead:
+# drop every light flat region, open the remaining silhouette with a disk (removes thin props, keeps the body),
+# fill holes -> body. A light region outside that body whose thin neighbours are mid-tone prop pixels (not the
+# dark outline) is a cavity -> background. Regions bordering skin (beard, collar under the chin) stay.
+def _disk(r):
+    y,x=np.ogrid[-r:r+1,-r:r+1];return x*x+y*y<=r*r
+def prop_cavities(rgba, bg, maxd=16, maxsd=10, min_n=15, r=5, dark=80, max_skin=0.12, core_d=3, core_n=60, max_med=5.5):
+    rgb = rgba[..., :3].astype(float); a = rgba[..., 3] > 0
+    d = np.abs(rgb - bg).max(-1); lum = rgb.mean(-1)
+    comps = []
+    lab, _ = nd.label((d <= maxd) & a)
+    for i, sl in enumerate(nd.find_objects(lab), 1):
+        m = lab[sl] == i
+        if m.sum() >= min_n and rgb[sl][m].std(0).max() <= maxsd:
+            full = np.zeros(a.shape, bool); full[sl] = m; comps.append(full)
+    # matte-pure cores: a pocket glued to a glow/sparkle halo fails the flatness test as a whole,
+    # but its matte-pure core (d <= core_d) is still a clean, large region.
+    cand = np.zeros(a.shape, bool)
+    for m in comps: cand |= m
+    labc, _ = nd.label((d <= core_d) & a & ~cand)
+    for i, sl in enumerate(nd.find_objects(labc), 1):
+        m = labc[sl] == i
+        if m.sum() >= core_n:
+            full = np.zeros(a.shape, bool); full[sl] = m; comps.append(full); cand |= full
+    # soft skill glow (cream/yellow halo) is FX, not body: it must not wall a cavity in
+    R_, G_, B_ = rgb[..., 0], rgb[..., 1], rgb[..., 2]
+    glow = (R_ > 225) & (G_ > 210) & (B_ < G_ - 12) & (lum > 200)
+    M = a & ~cand & ~glow; O = nd.binary_opening(M, structure=_disk(r)); body = nd.binary_fill_holes(O)
+    thin = M & ~O; rem = np.zeros(a.shape, bool); rep = []
+    for m in comps:
+        if body[m].mean() >= 0.5: continue
+        if np.median(d[m]) > max_med: continue  # drawn white (hair, beard, fur) is shaded off-matte
+        t = thin & nd.binary_dilation(m, iterations=3)
+        if t.sum() < 5: continue
+        ring = nd.binary_dilation(m, iterations=2) & ~m & a
+        rr = rgb[ring]
+        skin = ((rr[:, 0] > 190) & (rr[:, 0] - rr[:, 2] > 30) & (rr[:, 0] - rr[:, 2] < 120) & (rr[:, 1] > 130)).mean() if len(rr) else 0
+        if skin > max_skin and np.median(d[m]) > 2: continue  # matte-pure pockets may touch a hand
+        ml = float(np.median(lum[t]))
+        if ml >= dark:
+            rem |= m; ys, xs = np.nonzero(m)
+            rep.append(("prop_cavity", int(m.sum()), int(xs.min()), int(ys.min()), int(xs.max()), int(ys.max()), round(ml)))
+    return rem, rep
+
+
 def defringe(rgba, bg, tol):
     """Unmix bg colour from the 2px edge band so no light rim remains."""
     a = rgba[..., 3].astype(float) / 255
@@ -129,7 +175,7 @@ def fringe(rgba, band_px=2, light=170):
     return int(lt.sum()), int(band.sum())
 
 
-def cutout(raw, tol=6, min_hole=40, prop=None):
+def cutout(raw, tol=6, min_hole=40, prop=None, cavities=True):
     rgb = np.array(raw.convert("RGB")).astype(float)
     bg = bg_color(rgb)
     near = np.abs(rgb - bg).max(-1) <= tol
@@ -141,6 +187,9 @@ def cutout(raw, tol=6, min_hole=40, prop=None):
     for _ in range(4):  # removing one trapped pocket can expose the next (pocket chains)
         rem, r = holes_and_halo(rgba, bg, tol, min_hole, prop=prop)
         if not rem.any(): break
+        rgba[rem] = 0; rep += r
+    if cavities:
+        rem, r = prop_cavities(rgba, bg)
         rgba[rem] = 0; rep += r
     rgba = defringe(rgba, bg, tol)
     rgba = decontaminate(rgba)
