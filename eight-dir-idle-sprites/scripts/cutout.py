@@ -23,7 +23,7 @@ def bg_color(rgb):
     return np.median(b, axis=0)
 
 
-def holes_and_halo(rgba, bg, tol=6, min_hole=40, hole_std=4.0, hole_dist=8.0, reach=24, prop=None):
+def holes_and_halo(rgba, bg, tol=6, min_hole=40, hole_std=4.0, hole_dist=8.0, reach=24, prop=None, pure_dist=3.5):
     rgb = rgba[..., :3].astype(float)
     alpha = rgba[..., 3]
     dist = np.abs(rgb - bg).max(-1)
@@ -67,7 +67,12 @@ def holes_and_halo(rgba, bg, tol=6, min_hole=40, hole_std=4.0, hole_dist=8.0, re
             if rim.any() and (lum[rim] < 110).mean() >= 0.6:
                 ys, xs = np.nonzero(m)
                 remove |= m; report.append(("small_pocket", n, int(xs.min()), int(ys.min()), int(xs.max()), int(ys.max()))); continue
-        if n >= min_hole and near_out[m].any() and d.mean() <= hole_dist and rgb[m].std(0).max() <= hole_std:
+        # S7e matte-purity rule: the generator's background keeps the exact matte value (JPEG noise only,
+        # mean distance <= ~3), while drawn white (beard, hair, cape trim, eye shine) is always slightly
+        # off-matte (mean distance ~4-6). So an enclosed flat region at matte purity is background wherever it
+        # sits (deep bow-string / staff / arm pockets far from the outline), and off-matte white is art even
+        # when it touches the outline (the old distance-only rule ate white hair/beard at tight framing).
+        if n >= min_hole and d.mean() <= pure_dist and rgb[m].std(0).max() <= hole_std:
             ys, xs = np.nonzero(m)
             remove |= m; report.append(("enclosed_bg", n, int(xs.min()), int(ys.min()), int(xs.max()), int(ys.max())))
     return remove, report
@@ -142,6 +147,30 @@ def cutout(raw, tol=6, min_hole=40, prop=None):
     return rgba, bg, rep
 
 
+def atlas_check(path, cell=128, min_px=3, light=232, sat=24):
+    """Final-atlas gate (S7f): after LANCZOS downscale a matte pocket survives as a tiny light, unsaturated
+    patch walled by the dark outline/prop, and a matte rim survives as light pixels with partial alpha.
+    Stills-only gates never see these. Count per cell: light partial-alpha edge pixels (halo) and enclosed
+    light flat specks of >= min_px whose rim is mostly dark outline (pocket)."""
+    im = np.array(Image.open(path).convert("RGBA")); H, W = im.shape[:2]; tot = {"halo": 0, "pocket": 0, "cells": []}
+    for y in range(0, H, cell):
+        for x in range(0, W, cell):
+            c = im[y:y + cell, x:x + cell]; a = c[..., 3]
+            if a.max() < 8: continue
+            rgb = c[..., :3].astype(float); lum = rgb.mean(-1); s = rgb.max(-1) - rgb.min(-1)
+            out = a < 8; lt = (a >= 8) & (lum >= light) & (s <= sat)
+            halo = lt & (a < 200) & nd.binary_dilation(out, iterations=1)
+            lab, k = nd.label(lt); pk = 0
+            for i in range(1, k + 1):
+                m = lab == i; n = int(m.sum())
+                if n < min_px: continue
+                rim = nd.binary_dilation(m, iterations=1) & ~m & ~out
+                if rim.any() and (lum[rim] < 110).mean() >= 0.6 and rgb[m].min(-1).mean() >= 246: pk += n
+            if halo.sum() or pk: tot["cells"].append((x // cell, y // cell, int(halo.sum()), pk))
+            tot["halo"] += int(halo.sum()); tot["pocket"] += pk
+    return tot
+
+
 def check(path, tol=6, min_hole=40, prop=None):
     rgba = np.array(Image.open(path).convert("RGBA"))
     if prop is None: print("WARN: --check without --prop-mask cannot see pockets far from the outline (bow-string interiors); pass every weapon/prop mask", file=sys.stderr)
@@ -156,9 +185,13 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("inp"); ap.add_argument("out", nargs="?")
     ap.add_argument("--check", action="store_true")
+    ap.add_argument("--atlas-check", action="store_true", help="gate a final downscaled atlas (128px cells) for halo/pocket residue")
     ap.add_argument("--tol", type=float, default=6); ap.add_argument("--min-hole", type=int, default=40)
     ap.add_argument("--prop-mask", action="append", default=[], help="weapon/prop mask PNG (repeatable); pockets touching it are removed/flagged")
     A = ap.parse_args()
+    if A.atlas_check:
+        r = atlas_check(A.inp); print({k: v for k, v in r.items() if k != "cells"}, r["cells"][:20])
+        sys.exit(1 if (r["halo"] or r["pocket"]) else 0)
     if A.check:
         shp = Image.open(A.inp).size[::-1]
         n, rep = check(A.inp, A.tol, A.min_hole, load_props(A.prop_mask, shp))
