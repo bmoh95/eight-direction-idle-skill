@@ -1,0 +1,255 @@
+{
+ "guides_note": "thresholds are working guides, not standards",
+ "guides": {
+  "frame0_max_diff": 2,
+  "locked_mad": 1.5,
+  "contact_drift_px": 1.0,
+  "seam_ratio": 1.6,
+  "jump_ratio": 2.5,
+  "stray_px": 30,
+  "border_px": 1
+ },
+ "directions": {
+  "S": {
+   "locked_region_mad_max": 0.0,
+   "locked_region_px": 11202,
+   "frame0_vs_still_max_diff_after_logged_shift": 0,
+   "contact_lowest_row_range": [
+    833,
+    833
+   ],
+   "contact_x_drift_px": 0.0,
+   "step_mad_median": 2.156,
+   "seam_step_mad": 0.399,
+   "seam_ratio": 0.18,
+   "jump_ratio": 1.37,
+   "zero_change_steps": [],
+   "new_tiny_islands_max": 0,
+   "touches_canvas_edge": false,
+   "alpha_bbox_info_only": {
+    "w_range": [
+     533,
+     533
+    ],
+    "h_range": [
+     590,
+     598
+    ]
+   },
+   "auto_status": "auto_ok",
+   "issues": [],
+   "visual_status": "pending: check normal speed, slow, game size, zoom, 8-dir same-phase sheet"
+  },
+  "SW": {
+   "locked_region_mad_max": 0.0,
+   "locked_region_px": 11671,
+   "frame0_vs_still_max_diff_after_logged_shift": 0,
+   "contact_lowest_row_range": [
+    855,
+    855
+   ],
+   "contact_x_drift_px": 0.0,
+   "step_mad_median": 2.434,
+   "seam_step_mad": 0.452,
+   "seam_ratio": 0.19,
+   "jump_ratio": 1.38,
+   "zero_change_steps": [],
+   "new_tiny_islands_max": 0,
+   "touches_canvas_edge": false,
+   "alpha_bbox_info_only": {
+    "w_range": [
+     515,
+     515
+    ],
+    "h_range": [
+     616,
+     624
+    ]
+   },
+   "auto_status": "auto_ok",
+   "issues": [],
+   "visual_status": "pending: check normal speed, slow, game size, zoom, 8-dir same-phase sheet"
+  },
+  "W": {
+   "locked_region_mad_max": 0.0,
+   "locked_region_px": 8188,
+   "frame0_vs_still_max_diff_after_logged_shift": 0,
+   "contact_lowest_row_range": [
+    852,
+    852
+   ],
+   "contact_x_drift_px": 0.0,
+   "step_mad_median": 2.494,
+   "seam_step_mad": 0.466,
+   "seam_ratio": 0.19,
+   "jump_ratio": 1.38,
+   "zero_change_steps": [],
+   "new_tiny_islands_max": 0,
+   "touches_canvas_edge": false,
+   "alpha_bbox_info_only": {
+    "w_range": [
+     476,
+     476
+    ],
+    "h_range": [
+     643,
+     651
+    ]
+   },
+   "auto_status": "auto_ok",
+   "issues": [],
+   "visual_status": "pending: check normal speed, slow, game size, zoom, 8-dir same-phase sheet"
+  },
+  "NW": {
+   "locked_region_mad_max": 0.0,
+   "locked_region_px": 12042,
+   "frame0_vs_still_max_diff_after_logged_shift": 0,
+   "contact_lowest_row_range": [
+    810,
+    810
+   ],
+   "contact_x_drift_px": 0.0,
+   "step_mad_median": 2.375,
+   "seam_step_mad": 0.449,
+   "seam_ratio": 0.19,
+   "jump_ratio": 1.37,
+   "zero_change_steps": [],
+   "new_tiny_islands_max": 0,
+   "touches_canvas_edge": false,
+   "alpha_bbox_info_only": {
+    "w_range": [
+     520,
+     520
+    ],
+    "h_range": [
+     547,
+     555
+    ]
+   },
+   "auto_status": "auto_ok",
+   "issues": [],
+   "visual_status": "pending: check normal speed, slow, game size, zoom, 8-dir same-phase sheet"
+  },
+  "N": {
+   "locked_region_mad_max": 0.0,
+   "locked_region_px": 17121,
+   "frame0_vs_still_max_diff_after_logged_shift": 0,
+   "contact_lowest_row_range": [
+    848,
+    848
+   ],
+   "contact_x_drift_px": 0.0,
+   "step_mad_median": 2.03,
+   "seam_step_mad": 0.405,
+   "seam_ratio": 0.2,
+   "jump_ratio": 1.38,
+   "zero_change_steps": [],
+   "new_tiny_islands_max": 0,
+   "touches_canvas_edge": false,
+   "alpha_bbox_info_only": {
+    "w_range": [
+     559,
+     559
+    ],
+    "h_range": [
+     685,
+     693
+    ]
+   },
+   "auto_status": "auto_ok",
+   "issues": [],
+   "visual_status": "pending: check normal speed, slow, game size, zoom, 8-dir same-phase sheet"
+  },
+  "NE": {
+   "locked_region_mad_max": 0.0,
+   "locked_region_px": 12560,
+   "frame0_vs_still_max_diff_after_logged_shift": 0,
+   "contact_lowest_row_range": [
+    854,
+    854
+   ],
+   "contact_x_drift_px": 0.0,
+   "step_mad_median": 2.334,
+   "seam_step_mad": 0.445,
+   "seam_ratio": 0.19,
+   "jump_ratio": 1.37,
+   "zero_change_steps": [],
+   "new_tiny_islands_max": 0,
+   "touches_canvas_edge": false,
+   "alpha_bbox_info_only": {
+    "w_range": [
+     555,
+     555
+    ],
+    "h_range": [
+     633,
+     641
+    ]
+   },
+   "auto_status": "auto_ok",
+   "issues": [],
+   "visual_status": "pending: check normal speed, slow, game size, zoom, 8-dir same-phase sheet"
+  },
+  "E": {
+   "locked_region_mad_max": 0.0,
+   "locked_region_px": 12182,
+   "frame0_vs_still_max_diff_after_logged_shift": 0,
+   "contact_lowest_row_range": [
+    834,
+    834
+   ],
+   "contact_x_drift_px": 0.0,
+   "step_mad_median": 2.231,
+   "seam_step_mad": 0.433,
+   "seam_ratio": 0.19,
+   "jump_ratio": 1.38,
+   "zero_change_steps": [],
+   "new_tiny_islands_max": 0,
+   "touches_canvas_edge": false,
+   "alpha_bbox_info_only": {
+    "w_range": [
+     568,
+     568
+    ],
+    "h_range": [
+     621,
+     629
+    ]
+   },
+   "auto_status": "auto_ok",
+   "issues": [],
+   "visual_status": "pending: check normal speed, slow, game size, zoom, 8-dir same-phase sheet"
+  },
+  "SE": {
+   "locked_region_mad_max": 0.0,
+   "locked_region_px": 11202,
+   "frame0_vs_still_max_diff_after_logged_shift": 0,
+   "contact_lowest_row_range": [
+    834,
+    834
+   ],
+   "contact_x_drift_px": 0.0,
+   "step_mad_median": 2.168,
+   "seam_step_mad": 0.397,
+   "seam_ratio": 0.18,
+   "jump_ratio": 1.38,
+   "zero_change_steps": [],
+   "new_tiny_islands_max": 0,
+   "touches_canvas_edge": false,
+   "alpha_bbox_info_only": {
+    "w_range": [
+     582,
+     582
+    ],
+    "h_range": [
+     599,
+     607
+    ]
+   },
+   "auto_status": "auto_ok",
+   "issues": [],
+   "visual_status": "pending: check normal speed, slow, game size, zoom, 8-dir same-phase sheet"
+  }
+ },
+ "phase_sync_all_dirs": true
+}

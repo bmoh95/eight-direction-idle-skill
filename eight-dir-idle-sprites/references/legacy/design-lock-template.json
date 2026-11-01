@@ -1,0 +1,85 @@
+{
+  "source_front_path": "",
+  "observed": {
+    "species": "unknown",
+    "camera_and_projection": "unknown",
+    "canvas_pixels": null,
+    "background_and_alpha": "unknown",
+    "head_body_proportions": "unknown",
+    "neutral_pose_and_joint_angles": "unknown",
+    "screen_light_direction": "unknown",
+    "palette": [],
+    "outline_texture_and_detail_density": "unknown",
+    "face_features": [],
+    "body_segments_and_limb_count": "unknown",
+    "headgear_horns_hair_or_shell": [],
+    "markings_in_body_local_coordinates": [],
+    "asymmetric_features_by_anatomical_side": [],
+    "held_items_by_anatomical_hand": [],
+    "cape_or_attachment_origin": "unknown",
+    "body_center_and_ground_contact": "unknown",
+    "subject_structure_and_limb_count": "unknown; infer from the input, never force biped anatomy",
+    "source_completeness_and_occluded_parts": "unknown",
+    "eye_surface_and_light_response": {
+      "has_catchlights": "unknown",
+      "catchlight_shape_color_and_relative_size": "unknown",
+      "eye_emission_or_reflection": "unknown; do not confuse glowing eyes with reflective catchlights",
+      "visibility_and_lighting_rule": "retain the observed treatment on visible eye surfaces; do not force reflections on occluded, closed or absent eyes"
+    }
+  },
+  "unseen_surface_assumptions": [],
+  "user_supplied_rear_or_side_references": [],
+  "validation": {
+    "state": "not_generated",
+    "unresolved_items": []
+  },
+  "framing_lock": {
+    "source_canvas_pixels": null,
+    "alpha_threshold": 16,
+    "source_visible_bounds_pixels": null,
+    "source_visible_bounds_normalized": null,
+    "source_top_fraction": null,
+    "source_bottom_fraction": null,
+    "source_bottom_margin_fraction": null,
+    "body_scale_landmarks": [],
+    "anchor_kind": "unknown: e.g. verified_ground_contact, body_center, user_defined, or unknown",
+    "verified_anchor_normalized": null,
+    "anchor_confidence": "unknown",
+    "alpha_bottom_is_verified_ground_contact": false,
+    "review_heuristics": {
+      "height_change_pct": 3.0,
+      "top_or_bottom_boundary_shift_fraction": 0.015,
+      "role": "configurable review triggers, not universal pass/fail thresholds"
+    }
+  },
+  "feature_locks": [],
+  "feature_lock_fields": {
+    "id": "stable ID for an actually observed identifying feature",
+    "body_part_surface_and_anatomical_side": "physical attachment, not fixed screen side",
+    "observed_source_region_normalized": "2D region if inspectable; otherwise null",
+    "shape_count_and_neighbors": "observed topology and relative feature relationships",
+    "expected_visibility_by_direction": "visible, partial, hidden or unknown for S/SW/W/NW/N/NE/E/SE",
+    "importance": "critical identifying feature or minor texture detail",
+    "evidence_status": "observed or explicitly inferred"
+  },
+  "per_direction_review": {},
+  "review_entry_fields": {
+    "angle_check": "pending/pass/fail",
+    "identity_check": "pending/pass/needs_review/fail",
+    "framing_check": "pending/resolved/explained_by_projection/needs_review",
+    "reference_eligibility": "not_checked/accepted_anchor/provisional_anchor/rejected",
+    "numeric_report_path": null,
+    "unresolved_items": [],
+    "repair_calls": []
+  },
+  "source_artifact_review": {
+    "state": "not_checked",
+    "raw_original_path": "",
+    "approved_reference_path": "",
+    "suspect_regions": [],
+    "intentional_small_details": [],
+    "excluded_artifacts": [],
+    "ready_for_propagation": false,
+    "note": "Visual semantic review required; numeric scripts do not set this status."
+  }
+}

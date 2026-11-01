@@ -1,0 +1,68 @@
+{
+ "name": "bunny-butterfly",
+ "locomotion": "fly",
+ "fps": 24,
+ "duration_s": 1.0,
+ "out_dir": "out_8dir",
+ "channels": {
+  "flap": {
+   "fold": 0.3,
+   "perp_fold": 0.06,
+   "cycles": 1,
+   "phase": 0.0
+  },
+  "bob": {
+   "amp_px": 10,
+   "cycles": 1,
+   "phase": 0.0
+  }
+ },
+ "directions": {
+  "S": {
+   "still": "input/S.png",
+   "wing_mask": "masks/S_wing.png",
+   "pivot": "unknown (flyer: no ground contact)"
+  },
+  "SW": {
+   "still": "input/SW.png",
+   "wing_mask": "masks/SW_wing.png",
+   "pivot": "unknown (flyer: no ground contact)"
+  },
+  "W": {
+   "still": "input/W.png",
+   "wing_mask": "masks/W_wing.png",
+   "pivot": "unknown (flyer: no ground contact)"
+  },
+  "NW": {
+   "still": "input/NW.png",
+   "wing_mask": "masks/NW_wing.png",
+   "pivot": "unknown (flyer: no ground contact)",
+   "flap_fold": -0.1,
+   "note": "wings cover torso in back view: spread mode, no hidden torso revealed"
+  },
+  "N": {
+   "still": "input/N.png",
+   "wing_mask": "masks/N_wing.png",
+   "pivot": "unknown (flyer: no ground contact)",
+   "flap_fold": -0.1,
+   "note": "wings cover torso in back view: spread mode, no hidden torso revealed"
+  },
+  "NE": {
+   "still": "input/NE.png",
+   "wing_mask": "masks/NE_wing.png",
+   "pivot": "unknown (flyer: no ground contact)",
+   "flap_fold": -0.1,
+   "note": "wings cover torso in back view: spread mode, no hidden torso revealed"
+  },
+  "E": {
+   "still": "input/E.png",
+   "wing_mask": "masks/E_wing.png",
+   "pivot": "unknown (flyer: no ground contact)"
+  },
+  "SE": {
+   "still": "input/SE.png",
+   "wing_mask": "masks/SE_wing.png",
+   "pivot": "unknown (flyer: no ground contact)"
+  }
+ }
+}

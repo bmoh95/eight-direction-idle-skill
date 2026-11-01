@@ -1,0 +1,5 @@
+# full-resolution generated frames stay local (regenerate from specs)
+tests/*/out_*/
+tests/*/old_method_idle24/
+__pycache__/
+*.pyc

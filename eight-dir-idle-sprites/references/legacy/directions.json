@@ -1,0 +1,100 @@
+{
+  "coordinate_system": "Fixed camera. 0 degrees faces the viewer. Increasing yaw turns the character first toward screen left. Compass keys identify sprite directions, not an overhead camera.",
+  "output_order": [
+    "S",
+    "SW",
+    "W",
+    "NW",
+    "N",
+    "NE",
+    "E",
+    "SE"
+  ],
+  "generation_order": [
+    "W",
+    "E",
+    "N",
+    "SW",
+    "NW",
+    "NE",
+    "SE"
+  ],
+  "diagonal_anchors": {
+    "SW": [
+      "S",
+      "W"
+    ],
+    "NW": [
+      "S",
+      "N",
+      "W"
+    ],
+    "NE": [
+      "S",
+      "N",
+      "E"
+    ],
+    "SE": [
+      "S",
+      "E"
+    ]
+  },
+  "directions": [
+    {
+      "key": "S",
+      "filename": "00_front.png",
+      "yaw_degrees": 0,
+      "target_view": "front",
+      "visibility": "Faces the viewer directly; original front source."
+    },
+    {
+      "key": "SW",
+      "filename": "01_front_left.png",
+      "yaw_degrees": 45,
+      "target_view": "front three-quarter toward screen left",
+      "visibility": "Front and screen-left-facing profile are visible; turn the entire body toward screen left."
+    },
+    {
+      "key": "W",
+      "filename": "02_left.png",
+      "yaw_degrees": 90,
+      "target_view": "true side profile facing screen left",
+      "visibility": "The leading face surface points to the left edge; the far side is naturally occluded."
+    },
+    {
+      "key": "NW",
+      "filename": "03_back_left.png",
+      "yaw_degrees": 135,
+      "target_view": "rear three-quarter facing away toward screen left",
+      "visibility": "Mostly back surfaces plus the left-pointing profile; front face is normally hidden."
+    },
+    {
+      "key": "N",
+      "filename": "04_back.png",
+      "yaw_degrees": 180,
+      "target_view": "true rear",
+      "visibility": "The back faces the viewer. Do not show front eyes, mouth or front-only ornaments."
+    },
+    {
+      "key": "NE",
+      "filename": "05_back_right.png",
+      "yaw_degrees": 225,
+      "target_view": "rear three-quarter facing away toward screen right",
+      "visibility": "Mostly back surfaces plus the right-pointing profile; front face is normally hidden."
+    },
+    {
+      "key": "E",
+      "filename": "06_right.png",
+      "yaw_degrees": 270,
+      "target_view": "true side profile facing screen right",
+      "visibility": "The leading face surface points to the right edge; the far side is naturally occluded."
+    },
+    {
+      "key": "SE",
+      "filename": "07_front_right.png",
+      "yaw_degrees": 315,
+      "target_view": "front three-quarter toward screen right",
+      "visibility": "Front and screen-right-facing profile are visible; turn the entire body toward screen right."
+    }
+  ]
+}
