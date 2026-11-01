@@ -11,6 +11,6 @@ Phase sync across directions: True
 | N | 0.0 | 0 | 0.2 | 1.38 | 0.0 | 0 | False | auto_ok:  |
 | NE | 0.0 | 0 | 0.19 | 1.37 | 0.0 | 0 | False | auto_ok:  |
 | E | 0.0 | 0 | 0.19 | 1.38 | 0.0 | 0 | False | auto_ok:  |
-| SE | 0.0 | 0 | 0.18 | 1.38 | 0.0 | 0 | False | auto_ok:  |
+| SE | 1.061 | 0 | 0.19 | 1.38 | 0.0 | 0 | False | auto_ok:  |
 
 Auto checks do not judge appeal, anatomy or identity. Visual review is still required.

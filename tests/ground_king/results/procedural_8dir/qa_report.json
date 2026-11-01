@@ -221,7 +221,7 @@
    "visual_status": "pending: check normal speed, slow, game size, zoom, 8-dir same-phase sheet"
   },
   "SE": {
-   "locked_region_mad_max": 0.0,
+   "locked_region_mad_max": 1.061,
    "locked_region_px": 11202,
    "frame0_vs_still_max_diff_after_logged_shift": 0,
    "contact_lowest_row_range": [
@@ -229,9 +229,9 @@
     834
    ],
    "contact_x_drift_px": 0.0,
-   "step_mad_median": 2.168,
-   "seam_step_mad": 0.397,
-   "seam_ratio": 0.18,
+   "step_mad_median": 2.21,
+   "seam_step_mad": 0.426,
+   "seam_ratio": 0.19,
    "jump_ratio": 1.38,
    "zero_change_steps": [],
    "new_tiny_islands_max": 0,
