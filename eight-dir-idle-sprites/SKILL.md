@@ -114,6 +114,14 @@ Phase: all directions use the same functions of t = frame / n and the same chann
 per-direction masks, `contact_y` and `flap_fold` differ). Keep `phase` = 0 so frame 0 is the still. In the engine keep one idle clock and
 switch rows without resetting it (`references/engine-integration.md`).
 
+## Step 2b — cutout (background removal) — never key by border flood-fill alone
+Generated stills come on a flat (usually white) background. A border flood-fill leaves background **trapped inside closed shapes** (bow + string, arm/cape gaps, staff loops) as opaque white patches, plus a 1–2 px light rim. Always cut with:
+```bash
+python3 scripts/cutout.py raw.jpg job/DIR.png          # outer key + enclosed-pocket removal (iterated) + edge defringe
+python3 scripts/cutout.py --check job/DIR.png          # exit 1 if any background-white pocket/halo is left
+```
+Enclosed pockets are removed only when they are flat background colour and lie close to the silhouette edge, so beard, fur, eye shine and other white art deep inside the body stay. Re-run `--check` on frame 0 and a mid-cycle frame after `idle_rig` (front_qa S7). Rigid prop masks must cover only prop pixels (wood, string, gripping hand) — never background pockets.
+
 ## Step 3 — masks (the only manual-judgement input)
 
 Mask file = 8-bit grayscale PNG, same canvas size as its still, white (>127) = selected. Spec keys per direction:
@@ -217,6 +225,9 @@ snap keys to one ground line (`contact_y`; an airborne key may lift by a logged 
 
 ## Eye shine
 Every visible eye must keep a clear white highlight like the style sample; ask for it explicitly in the still prompt and verify on a zoom crop of the still and of a mid-cycle frame (front_qa S6). Flat eyes are a reject.
+
+## Props: no white background (S7)
+Look at every weapon/prop on black AND magenta at zoom: the gap between bow limb and string, between arm and body, inside rings must show the backdrop, not white. Any white pocket = run `cutout.py` again on the raw still; never ship it.
 
 ## Facing check (diagonals)
 On a top-down 8-direction camera, SE/SW/NE/NW mean a true ~45° diagonal: the body axis (tail→nose) runs corner to corner on screen, the face sits in the matching lower/upper quadrant of the head, and the tail/rear sits in the opposite corner. A mild 20–35° head turn on an upright front-ish body reads as E/W (or S): reject it and regenerate the still before rigging. For flying or prone diagonal poses, style_check's head_frac is not meaningful (the body is horizontal), so check proportion on the front still and compare the diagonal visually against the sample.

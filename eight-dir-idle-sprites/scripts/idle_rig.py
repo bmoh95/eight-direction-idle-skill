@@ -71,6 +71,11 @@ def validate(S, P):
         if "flap" in ch and not D.get("wing_mask"): err.append(f"{d}: flap requested but no wing_mask")
         for m in [D.get("wing_mask")] + [r.get("mask") for r in D.get("rigid", [])]:
             if m and not os.path.exists(P(m)): err.append(f"{d}: mask not found {m}")
+            elif m:
+                mk = cv2.imread(P(m), cv2.IMREAD_UNCHANGED)
+                g = (mk[..., 3] if mk is not None and mk.ndim == 3 and mk.shape[2] == 4 and mk[..., :3].max() == 0 else cv2.imread(P(m), 0)) if mk is not None else None
+                if g is None or (g > 127).sum() < 50:
+                    err.append(f"{d}: mask {m} is empty (<50 px >127 after grayscale read); a blank rigid mask silently disables the prop lock")
     if len(sizes) > 1: err.append(f"stills have different canvas sizes {sizes}: same camera/scale/canvas required; re-frame stills, never auto-scale frames")
     return err, warn
 

@@ -50,3 +50,6 @@ contact_y). 3. Change only that input. 4. Regenerate that direction, re-run A an
 - Run `scripts/style_check.py` against `style_ref`; `fail` = reject, `needs_review` = visual reviewer decides and writes why.
 - Visual: same crayon grain, outline weight, palette softness and chibi head:body as the sample, side by side at the same height.
 - A still that drifts toward the input image's original style (painterly, storybook, realistic) is a fail even if identity is right.
+
+## S7 — background matte on props
+- `scripts/cutout.py --check` = 0 on still, frame 0, mid frame. Bow-string gap and arm/cape gaps must show the backdrop on black/magenta zooms.
