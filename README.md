@@ -40,7 +40,9 @@ cd tests/ground_king && python3 ../../eight-dir-idle-sprites/scripts/idle_rig.py
 각 작업 폴더에 `SKILL_DIR/templates/work_manifest.template.json`을 복사해 입력·무기 손·접점 등을 먼저 채웁니다.
 
 ## 직접 실행 (idle)
-spec 안의 상대 경로(`still`, `mask`, `out_dir`)는 **spec 파일 위치 기준**입니다.
+spec 안의 상대 경로(`still`, `wing_mask`, `rigid[].mask`, `out_dir`)는 **spec 파일 위치 기준**입니다.
+마스크 = 스틸과 같은 크기 흑백 PNG, 흰색(>127)=선택. 방향별 키: 날개 `"wing_mask"`, 무기·왕관 등 `"rigid": [{"name":"bow","mask":"masks/S_bow.png"}]`(늘어나지 않고 통째 이동), 몸통은 마스크 없음(알파 − 날개), 지상형 `"contact_y"`(발 맨 아래 행). 생성 전 `idle_rig.py spec.json --check`로 검증.
+`measure_sprite_framing.py`: `--source 정면.png` + (`--input-dir 폴더`(8방향 DIR.png) 또는 `--candidate SE.png --direction SE`), 옵션 `--output`, `--require-all`, `--alpha-threshold`, `--height-review-pct`, `--edge-review-frac`.
 ```bash
 mkdir my_job && cd my_job && mkdir input masks     # input/S.png, SW.png ... SE.png (같은 캔버스·같은 지면선)
 ```

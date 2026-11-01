@@ -43,7 +43,10 @@ S,SW,W,NW,N,NE,E,SE; generate W,E,N, then diagonals anchored on their neighbours
 - Same camera, scale and ground line in all 8; silhouette width and alpha bbox may change with turning.
 - Weapon stays in the same **anatomical** hand; record screen side per direction.
 - Rear details not visible in the front are minimal guesses, recorded in `occluded_or_guessed`.
-- Measure with `scripts/measure_sprite_framing.py` (body height, ground line), never fix by auto-scaling.
+- Measure with `scripts/measure_sprite_framing.py` (body height, ground line), never fix by auto-scaling:
+  `python3 scripts/measure_sprite_framing.py --source front.png --input-dir dirs/` (all 8 `DIR.png`) or
+  `--source front.png --candidate dirs/SE.png --direction SE` (one). Options: `--output report.json`,
+  `--require-all`, `--alpha-threshold`, `--height-review-pct`, `--edge-review-frac`. Read-only JSON diagnostics.
 - A rotation preview (stills cycled) is **not** an idle animation; name files accordingly.
 
 Handedness, worked out once and written into the manifest (`anatomical_sides.per_direction_screen_side`):
@@ -90,6 +93,15 @@ per-direction masks, `contact_y` and `flap_fold` differ). Keep `phase` = 0 so fr
 switch rows without resetting it (`references/engine-integration.md`).
 
 ## Step 3 — masks (the only manual-judgement input)
+
+Mask file = 8-bit grayscale PNG, same canvas size as its still, white (>127) = selected. Spec keys per direction:
+| Part | Spec key | Effect |
+|---|---|---|
+| Wing | `"wing_mask": "masks/DIR_wing.png"` | rotates/folds about root (required for `flap`) |
+| Weapon / crown / rigid prop | `"rigid": [{"name": "bow", "mask": "masks/DIR_bow.png"}]` | translated whole, never stretched |
+| Body | no mask: body = still alpha minus wing mask | breathes/bobs |
+| Ground contact | `"contact_y": <int row>` | rows at/below are locked |
+All paths relative to the spec file's folder. Validate with `python3 scripts/idle_rig.py spec.json --check`.
 
 - Wings: `python3 scripts/make_masks.py wing still.png masks/DIR_wing.png` (outline-bounded regions
   classified pale-body vs saturated-wing, thin rims → wing, small body-hugged patches → body).
