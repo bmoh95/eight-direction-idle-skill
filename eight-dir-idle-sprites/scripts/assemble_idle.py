@@ -200,6 +200,28 @@ def assemble(plan_path, output):
                                        "requested_loop_duration_ms": sum(s["duration_ms"] for s in timeline),
                                        "neutral_same_bytes_as_source": record["neutral_same_bytes_as_source"]})
         diagnostics["directions"].append({k: v for k, v in record.items() if k not in ("source_path", "paths")})
+    # qa_idle.py compatibility: <out>/<key>/<key>_NNN.png + transforms.json + qa_spec.json
+    loco = plan.get("locomotion", "ground" if plan.get("motion_kind") in (None, "breathe", "unspecified") else "float")
+    tr = {"fps": None, "display_frames_per_dir": len(timeline), "method": "key-pose assembly (assemble_idle.py)",
+          "display_map": [s["state"] for s in timeline], "durations_ms": [s["duration_ms"] for s in timeline],
+          "unique_poses_per_dir": {}, "directions": {}}
+    ms = {s["duration_ms"] for s in timeline}
+    if len(ms) == 1: tr["fps"] = round(1000 / ms.pop(), 3)
+    qspec = {"locomotion": loco, "out_dir": ".", "directions": {}}
+    for record in prepared:
+        key = record["key"]; folder = output / key
+        for i, step in enumerate(timeline):
+            shutil.copy2(record["paths"][step["state"]], folder / f"{key}_{i:03d}.png")
+        tr["unique_poses_per_dir"][key] = record["unique_visible_states"]
+        tr["directions"][key] = {"frames": [{"frame": i, "t": round(sum(x["duration_ms"] for x in timeline[:i]) / max(1, sum(x["duration_ms"] for x in timeline)), 5),
+                                              "state": st["state"], "global_scale": 1.0, "global_dx": 0} for i, st in enumerate(timeline)]}
+        D = {"still": f"{key}/source/original{record['source_path'].suffix}"}
+        anc = record["anchor_from_plan"]
+        if isinstance(anc, dict) and isinstance(anc.get("contact_y"), (int, float)): D["contact_y"] = anc["contact_y"]
+        elif loco == "ground": D["contact_y"] = record["source_metrics"]["visible_bounds_pixels"][3] - 1 if record["source_metrics"]["visible_bounds_pixels"] else 0; D["contact_y_note"] = "estimated from alpha bbox bottom; verify"
+        qspec["directions"][key] = D
+    (output / "transforms.json").write_text(json.dumps(tr, indent=1) + "\n", encoding="utf-8")
+    (output / "qa_spec.json").write_text(json.dumps(qspec, indent=1) + "\n", encoding="utf-8")
     (output / "idle-manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (output / "idle-diagnostics.json").write_text(json.dumps(diagnostics, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return {"output_dir": str(output), "directions": len(prepared),

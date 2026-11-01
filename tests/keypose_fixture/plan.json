@@ -1,0 +1,53 @@
+{
+ "motion_kind": "breathe",
+ "locomotion": "ground",
+ "timeline": [
+  {
+   "state": "neutral",
+   "duration_ms": 125
+  },
+  {
+   "state": "up1",
+   "duration_ms": 125
+  },
+  {
+   "state": "up2",
+   "duration_ms": 125
+  },
+  {
+   "state": "up2",
+   "duration_ms": 125
+  },
+  {
+   "state": "up1",
+   "duration_ms": 125
+  },
+  {
+   "state": "neutral",
+   "duration_ms": 125
+  },
+  {
+   "state": "neutral",
+   "duration_ms": 125
+  },
+  {
+   "state": "neutral",
+   "duration_ms": 125
+  }
+ ],
+ "directions": [
+  {
+   "key": "S",
+   "source": "neutral.png",
+   "states": {
+    "neutral": "neutral.png",
+    "up1": "up1.png",
+    "up2": "up2.png"
+   },
+   "anchor": {
+    "kind": "feet",
+    "contact_y": 104
+   }
+  }
+ ]
+}

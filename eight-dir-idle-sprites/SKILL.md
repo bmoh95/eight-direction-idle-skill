@@ -134,6 +134,12 @@ Already have idle frames from another source (generated key poses, hand-drawn)? 
 assembles timing/atlas/previews; it does not make motion or check identity, and `qa_idle.py` does not
 read its output (no `transforms.json`), so the visual review and the `qa-checklist.md` items are the
 only gate for that route.
+Key-pose route rules: timeline step 0 must be state `neutral` = the approved still (pixel-checked);
+every key is generated from the still, never from the previous key; holds/ping-pong are written as
+repeated states in `timeline` (e.g. neutral,k1,k2,k2,k1,neutral) and recorded in `transforms.json`
+(`display_map`, `unique_poses_per_dir`). Set `locomotion` and `anchor.contact_y` in the plan. Then run
+`python3 scripts/qa_idle.py new_dir/qa_spec.json`: intended holds are reported as held steps — confirm
+them, do not hide them. Fixture: `tests/keypose_fixture/run_test.sh`.
 
 What the generator guarantees (by construction, verified by `qa_idle.py`): no global scale, no
 horizontal shift; ground contact rows unchanged; rest phase byte-identical to the still; rigid props

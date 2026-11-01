@@ -83,7 +83,7 @@ def run(spec_path):
     ref = next(iter(sync.values())); rep["phase_sync_all_dirs"] = all(v == ref for v in sync.values())
     json.dump(rep, open(f"{out}/qa_report.json", "w"), indent=1)
     with open(f"{out}/qa_report.md", "w") as m:
-        m.write(f"# Auto QA ({T['display_frames_per_dir']} frames/dir @ {T['fps']} fps)\n\nPhase sync across directions: {rep['phase_sync_all_dirs']}\n\n")
+        m.write(f"# Auto QA ({T['display_frames_per_dir']} frames/dir @ {T.get('fps')} fps, method: {T.get('method','')})\n\nPhase sync across directions: {rep['phase_sync_all_dirs']}\n\n")
         m.write("| dir | locked MAD max | frame0 diff | seam ratio | jump ratio | contact | islands | edge | auto |\n|---|---|---|---|---|---|---|---|---|\n")
         for d, R in rep["directions"].items():
             c = R.get("contact_x_drift_px", "n/a (not grounded)")
