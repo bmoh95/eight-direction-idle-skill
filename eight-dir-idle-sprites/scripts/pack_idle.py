@@ -10,7 +10,7 @@ from PIL import Image
 
 ap = argparse.ArgumentParser(); ap.add_argument("spec"); ap.add_argument("--cell", type=int, default=256); ap.add_argument("--game", type=int, default=96)
 A = ap.parse_args(); S = json.load(open(A.spec)); base = os.path.dirname(os.path.abspath(A.spec))
-out = os.path.join(base, S["out_dir"]); T = json.load(open(f"{out}/transforms.json")); n = T["display_frames_per_dir"]; fps = T["fps"]
+out = os.path.join(base, S["out_dir"]); T = json.load(open(f"{out}/transforms.json")); n = T["display_frames_per_dir"]; fps = T.get("fps") or S.get("fps") or round(1000 / (sum(T.get("frame_ms", []) or [1000 / 24]) / max(1, len(T.get("frame_ms", []) or [1]))))
 dirs = list(S["directions"]); F = {d: [Image.open(f"{out}/{d}/{d}_{i:03d}.png").convert("RGBA") for i in range(n)] for d in dirs}
 W, H = F[dirs[0]][0].size; c = A.cell; ch = round(H * c / W)
 atlas = Image.new("RGBA", (c * n, ch * len(dirs)))

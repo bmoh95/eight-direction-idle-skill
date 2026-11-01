@@ -200,3 +200,12 @@ is centisecond-quantised: 24 fps cannot be uniform in GIF, so GIFs are previews 
 - Rigid props crossing the breathing band move by their anchor's lift (≈ sub-pixel at small amplitudes).
 - No optical-flow/video inbetweening by default (ghosting, wing-overlap tearing; see research doc).
 - Built-in style samples (`assets/styles/`) are the round pastel set; other styles are kept from input.
+
+
+## Walk / locomotion loops (key-pose route)
+A walk or hop loop is not an idle breathe: legs must change pose, so `idle_rig.py` (deformation only) cannot make it.
+Generate 3–6 gait keys from the approved direction still (style_ref passed again), check each against the style lock,
+snap keys to one ground line (`contact_y`; an airborne key may lift by a logged px value), and assemble them with
+`scripts/assemble_idle.py` (timeline = gait order, holds documented). Record `locomotion: walk` and `gait`
+(e.g. quadruped hop, biped walk) in the manifest; quadrupeds keep all four paws in the cycle. In `qa_idle.py`
+"locked region changed" / "foot contact moved" are expected for walk; review them visually instead.
