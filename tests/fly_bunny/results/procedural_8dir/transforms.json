@@ -1248,11 +1248,11 @@
    "pivot": "unknown (flyer: no ground contact)",
    "wing_hinges": [
     [
-     677.3342473183078,
-     719.6735265758708
+     679.1138216976913,
+     770.5103396070605
     ]
    ],
-   "hidden_body_estimate_px": 32392,
+   "hidden_body_estimate_px": 26940,
    "frames": [
     {
      "frame": 0,

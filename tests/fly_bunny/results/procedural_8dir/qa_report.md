@@ -9,7 +9,7 @@ Phase sync across directions: True
 | W | 0.0 | 0 | 0.31 | 1.31 | n/a (not grounded) | 0 | False | auto_ok:  |
 | NW | 0.0 | 0 | 0.17 | 1.54 | n/a (not grounded) | 0 | False | auto_ok:  |
 | N | 0.0 | 0 | 0.19 | 1.5 | n/a (not grounded) | 0 | False | auto_ok:  |
-| NE | 0.0 | 0 | 0.17 | 1.57 | n/a (not grounded) | 0 | False | auto_ok:  |
+| NE | 0.0 | 0 | 0.17 | 1.54 | n/a (not grounded) | 0 | False | auto_ok:  |
 | E | 0.0 | 0 | 0.3 | 1.4 | n/a (not grounded) | 0 | False | auto_ok:  |
 | SE | 0.0 | 0 | 0.29 | 1.46 | n/a (not grounded) | 0 | False | auto_ok:  |
 

@@ -137,19 +137,19 @@
   },
   "NE": {
    "locked_region_mad_max": 0.0,
-   "locked_region_px": 138561,
+   "locked_region_px": 148452,
    "frame0_vs_still_max_diff_after_logged_shift": 0,
-   "step_mad_median": 6.403,
-   "seam_step_mad": 1.113,
+   "step_mad_median": 6.799,
+   "seam_step_mad": 1.172,
    "seam_ratio": 0.17,
-   "jump_ratio": 1.57,
+   "jump_ratio": 1.54,
    "zero_change_steps": [],
    "new_tiny_islands_max": 0,
    "touches_canvas_edge": false,
    "alpha_bbox_info_only": {
     "w_range": [
      780,
-     803
+     798
     ],
     "h_range": [
      916,
