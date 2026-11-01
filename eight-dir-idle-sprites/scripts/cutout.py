@@ -46,7 +46,7 @@ def holes_and_halo(rgba, bg, tol=6, min_hole=40, hole_std=4.0, hole_dist=6.0, re
         if ring[m].any() and n and (m & ~ring).sum() < 0.1 * n:
             remove |= m; report.append(("halo", n)); continue          # thin rim on silhouette
         flat = d.mean() <= hole_dist and rgb[m].std(0).max() <= hole_std
-        if n >= 12 and prop_d is not None and (m & prop_d).any() and flat:
+        if n >= min_hole and prop_d is not None and (m & prop_d).any() and flat:
             ys, xs = np.nonzero(m)
             remove |= m; report.append(("prop_pocket", n, int(xs.min()), int(ys.min()), int(xs.max()), int(ys.max()))); continue
         if n >= min_hole and near_out[m].any() and d.mean() <= hole_dist and rgb[m].std(0).max() <= hole_std:
