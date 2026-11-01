@@ -20,12 +20,29 @@ props and crayon texture each time. Prompt wording cannot remove that variance (
 `references/research-and-design.md` §4). Deforming the one approved still keeps every pixel's source
 fixed, so body texture, face and props cannot drift; motion becomes an explicit, logged transform.
 
+## Style lock (highest priority — read before any new art)
+
+Matching the bundled sample art style and character proportions is the most important requirement of this skill.
+- Default `style_ref` = `assets/styles/style-king.png` (landmarks and style words in `assets/styles/style_samples.json`;
+  `style-original-king.png`, `style-party.png` show the same family). Pass the sample as a real reference image on
+  every front / direction call.
+- Lock to the sample: soft crayon/felt grain texture, thick dark continuous outline, flat pastel palette with light
+  shading, big dark oval eyes with one shine, blush, short stubby limbs, **2-head chibi** (`proportion_class: chibi_2head`,
+  head ≈ 55% of skull-top→feet height, head ≥ body).
+- An input image supplies **identity only** (species, markings, character colours, props, face details). Do **not** copy
+  its rendering style (painterly, storybook, meadow, realistic, anime, vector) or its proportions. A different style or
+  proportion is used only when the user explicitly says so; record that in `design_spec.style_override` with the quote.
+- Fail closed: if `scripts/style_check.py` fails or the side-by-side vs the sample does not read as the same family,
+  the front fails G1 and nothing downstream (8-dir, idle) may start.
+  `python3 scripts/style_check.py --sample assets/styles/style-king.png --candidate front.png --head-top-y Y1 --head-bottom-y Y2 --feet-y Y3`
+  (head top excludes ears/hats/crowns; Y values by eye on the candidate).
+
 ## Step 0 — decide the route (write it into the work manifest)
 
 | Input | Do |
 |---|---|
 | Text only | Generate a front full-body reference (legacy `style-workflow.md` + `generation-template.md`), review it, lock it. Then the stills route. |
-| One front image | Keep it byte-exact as identity reference. Stills route. Never restyle it. |
+| One front image | If it already matches the style sample (style_check pass + visual): keep it byte-exact. Otherwise extract identity only and redraw a true front in the sample style/proportions (Style lock), then stills route. |
 | 8 direction stills | Skip generation. Check them against the front (legacy `artifact-review.md`). Idle route. |
 | Idle only for existing dirs | Idle route only. Do not regenerate characters or directions. |
 
@@ -37,7 +54,7 @@ direction. Unverified values stay `"unknown"` or `"estimated"`.
 ## Step 1 — 8 direction stills (generative edit; keep what already worked)
 
 **Gates (mandatory for new art): `references/new-art-gates.md` G0–G6.** Front must pass
-`templates/front_qa.checklist.md` (identity lock + true front) before any rotation; record each direction in
+`templates/front_qa.checklist.md` (identity lock + style/proportion lock + true front) before any rotation; record each direction in
 `templates/stills_8dir_review.template.json`; all 8 stills frozen before any idle work.
 
 

@@ -1,0 +1,7 @@
+{
+  "_note": "Landmarks measured by eye on the bundled samples (pixel rows). head = skull/hair top (exclude crown, hats, ears, antennae) to chin/beard bottom; feet = lowest ground contact.",
+  "style-king": {"file": "style-king.png", "head_top_y": 290, "head_bottom_y": 650, "feet_y": 940,
+                 "proportion_class": "chibi_2head", "head_frac_target": 0.55,
+                 "style": "soft crayon/felt grain, thick dark-brown continuous outline, flat pastel fills with light soft shading, big dark oval eyes with one white shine, blush cheeks, short stubby limbs"},
+  "default_style_ref": "style-king"
+}

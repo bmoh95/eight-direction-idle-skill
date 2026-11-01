@@ -44,3 +44,9 @@ contact_y). 3. Change only that input. 4. Regenerate that direction, re-run A an
 - [ ] Frame 0 = approved still; unique poses vs display frames and hold/ping-pong map recorded.
 - [ ] Winged flyer flaps; legless/floater has no invented feet; mech/rock has no human chest breath.
 - [ ] Engine playback claimed only if actually run; otherwise "preview only".
+
+
+## Style / proportion lock (applies to fronts, every direction still, and idle frame 0)
+- Run `scripts/style_check.py` against `style_ref`; `fail` = reject, `needs_review` = visual reviewer decides and writes why.
+- Visual: same crayon grain, outline weight, palette softness and chibi head:body as the sample, side by side at the same height.
+- A still that drifts toward the input image's original style (painterly, storybook, realistic) is a fail even if identity is right.

@@ -7,9 +7,10 @@ Do not start a step while an earlier gate is fail. Any image tool that accepts r
 |---|---|---|
 | G0 route | before any call | route chosen (Step 0), manifest copied and filled; unknowns marked `unknown` |
 | G1 identity lock | after the front exists | `templates/front_qa.checklist.md` all pass; front file hashed (`original_bytes_sha256`); `design_spec` filled from the image, not from the prompt |
+| G1s style/proportion lock | after G1, before G2 | `front_qa` S1–S5 pass: same art family as `style_ref` (crayon texture, thick outline, pastel palette) and `proportion_class` (default chibi_2head); `scripts/style_check.py` not fail. Input image = identity only. Fail closed: redraw the front, never rotate a mismatched one |
 | G2 true front | before any rotation | camera faces the character head-on: eyes/face centred on the body axis, both shoulders/feet visible and near-symmetric, no 3/4 yaw. A 3/4 "front" fails: rotations anchored on it come out shifted by one step |
 | G3 weapon hand | before W/E | anatomical hand recorded; `per_direction_screen_side` filled for all 8 from the SKILL.md table |
-| G4 per-direction still | each of W,E,N then diagonals | `templates/stills_8dir_review.template.json` row filled: identity, proportion, palette, hand side, camera/scale/ground line (measure_sprite_framing.py), rear = minimal guess listed in `occluded_or_guessed`. Only a passed still may be an anchor |
+| G4 per-direction still | each of W,E,N then diagonals | `templates/stills_8dir_review.template.json` row filled: identity, style + proportion vs `style_ref` (style_check.py), palette, hand side, camera/scale/ground line (measure_sprite_framing.py), rear = minimal guess listed in `occluded_or_guessed`. Only a passed still may be an anchor |
 | G5 set | all 8 done | same-scale contact sheet reviewed side by side; rotation preview named `*_rotation_preview.*` (never `idle`) |
 | G6 stills-first | before idle | all 8 stills pass G4/G5 and are frozen (hash recorded). Idle work starts only now |
 

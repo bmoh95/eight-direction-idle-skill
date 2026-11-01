@@ -1,4 +1,13 @@
-# Front QA (gates G1 + G2) — fill one per front
+# Front QA (gates G1 + G1s + G2) — fill one per front
+
+## Style / proportion lock (G1s — fail closed; check first)
+- [ ] S1 Side-by-side with `style_ref` (default `assets/styles/style-king.png`) reads as the same art family
+- [ ] S2 Texture: soft crayon/felt grain like the sample (not painterly, airbrushed, storybook, vector-flat, realistic fur)
+- [ ] S3 Outline: thick dark continuous outline around the silhouette like the sample
+- [ ] S4 Proportion: `proportion_class` matches (default chibi_2head, head ≥ body, stubby limbs); `scripts/style_check.py` proportion = pass
+- [ ] S5 Input image used for identity only; its style/proportions not copied unless user explicitly overrode (quote in `design_spec.style_override`)
+
+## Identity + true front (G1, G2)
 
 - [ ] Full body in frame, nothing cut at canvas edge; transparent or flat removable background
 - [ ] True front: face centred on body axis, no visible yaw; both eyes equal size; both feet visible

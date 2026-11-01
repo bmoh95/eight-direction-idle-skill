@@ -1,22 +1,117 @@
 {
   "_note": "Fill BEFORE making frames. Use \"unknown\" or {\"value\":..,\"status\":\"estimated\"} for anything not verified in the image.",
-  "character": {"name": "", "input_mode": "text | front_image | eight_dir_stills | idle_only",
-                "structure": "biped | quadruped | legless | winged_flyer | floater | mech | rock | other",
-                "locomotion": "ground | fly | float", "has_wings": false, "has_eyelids": "unknown",
-                "style": "built-in round pastel | user style (describe)"},
-  "references": {"identity_front": "", "original_bytes_sha256": "", "per_direction_stills": {"S": "", "SW": "", "W": "", "NW": "", "N": "", "NE": "", "E": "", "SE": ""}},
-  "canvas": {"size_px": [0, 0], "target_display_px": 0, "scale_note": "same scale for all directions; never per-frame auto-scale"},
-  "pivot_and_contact": {"S": {"pivot": "unknown", "contact_y": "unknown", "how_measured": ""}},
-  "landmarks": {"S": {"eyes": "unknown", "nose": "unknown", "weapon_grip": "unknown", "wing_roots": "unknown"}},
-  "anatomical_sides": {"weapon_hand": "character's right | left | none", "asymmetric_items": [],
-                       "per_direction_screen_side": {"S": "", "SW": "", "W": "near|far", "NW": "", "N": "", "NE": "", "E": "near|far", "SE": ""},
-                       "mirroring": "none (default) | allowed by user: which dirs"},
-  "design_spec": {"proportion": "e.g. head:body 1:1 (2-head chibi)", "eye_shine": "count/colour/position or none", "outline": "", "texture": "", "palette_hex": [], "intentional_particles": []},
+  "character": {
+    "name": "",
+    "input_mode": "text | front_image | eight_dir_stills | idle_only",
+    "structure": "biped | quadruped | legless | winged_flyer | floater | mech | rock | other",
+    "locomotion": "ground | fly | float",
+    "has_wings": false,
+    "has_eyelids": "unknown",
+    "style": "bundled sample (style-king crayon chibi) | user override (quote)"
+  },
+  "references": {
+    "identity_front": "",
+    "original_bytes_sha256": "",
+    "per_direction_stills": {
+      "S": "",
+      "SW": "",
+      "W": "",
+      "NW": "",
+      "N": "",
+      "NE": "",
+      "E": "",
+      "SE": ""
+    }
+  },
+  "canvas": {
+    "size_px": [
+      0,
+      0
+    ],
+    "target_display_px": 0,
+    "scale_note": "same scale for all directions; never per-frame auto-scale"
+  },
+  "pivot_and_contact": {
+    "S": {
+      "pivot": "unknown",
+      "contact_y": "unknown",
+      "how_measured": ""
+    }
+  },
+  "landmarks": {
+    "S": {
+      "eyes": "unknown",
+      "nose": "unknown",
+      "weapon_grip": "unknown",
+      "wing_roots": "unknown"
+    }
+  },
+  "anatomical_sides": {
+    "weapon_hand": "character's right | left | none",
+    "asymmetric_items": [],
+    "per_direction_screen_side": {
+      "S": "",
+      "SW": "",
+      "W": "near|far",
+      "NW": "",
+      "N": "",
+      "NE": "",
+      "E": "near|far",
+      "SE": ""
+    },
+    "mirroring": "none (default) | allowed by user: which dirs"
+  },
+  "design_spec": {
+    "style_ref": "assets/styles/style-king.png",
+    "proportion_class": "chibi_2head (default) | other only if user override",
+    "style_override": "none | exact user quote",
+    "style_check": "scripts/style_check.py result: pass | fail | needs_review",
+    "proportion": "e.g. head:body 1:1 (2-head chibi)",
+    "eye_shine": "count/colour/position or none",
+    "outline": "",
+    "texture": "",
+    "palette_hex": [],
+    "intentional_particles": []
+  },
   "transforms_policy": "only logged transforms (breathe/flap/bob/rigid); no global scale, no bbox centring, no crop",
-  "review": {"auto": "", "visual_reviewer": "", "engine_playback": "not run | engine+version", "needs_review": {}},
-  "rigid_parts": ["head+face", "crown", "weapon"],
-  "moving_parts": {"breathe": "torso", "flap": "wings", "bob": "whole sprite (flyers only)", "blink": "only if eyelids exist"},
-  "occluded_or_guessed": {"N": ["back design guessed from front: ..."], "NW": [], "NE": []},
-  "motion_plan": {"fps": 24, "duration_s": 1.0, "display_frames_per_dir": 24, "unique_poses_per_dir": "24 (procedural) | N (generated keys, list reuse)",
-                  "channels": {"breathe": {"amp_px": 0, "cycles": 1, "phase": 0}, "flap": {}, "bob": {}, "blink": "none"}}
+  "review": {
+    "auto": "",
+    "visual_reviewer": "",
+    "engine_playback": "not run | engine+version",
+    "needs_review": {}
+  },
+  "rigid_parts": [
+    "head+face",
+    "crown",
+    "weapon"
+  ],
+  "moving_parts": {
+    "breathe": "torso",
+    "flap": "wings",
+    "bob": "whole sprite (flyers only)",
+    "blink": "only if eyelids exist"
+  },
+  "occluded_or_guessed": {
+    "N": [
+      "back design guessed from front: ..."
+    ],
+    "NW": [],
+    "NE": []
+  },
+  "motion_plan": {
+    "fps": 24,
+    "duration_s": 1.0,
+    "display_frames_per_dir": 24,
+    "unique_poses_per_dir": "24 (procedural) | N (generated keys, list reuse)",
+    "channels": {
+      "breathe": {
+        "amp_px": 0,
+        "cycles": 1,
+        "phase": 0
+      },
+      "flap": {},
+      "bob": {},
+      "blink": "none"
+    }
+  }
 }

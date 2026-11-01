@@ -87,3 +87,9 @@ python3 SKILL_DIR/scripts/pack_idle.py spec.json   # atlas_256.png, atlas_manife
 - 동봉 테스트 결과의 시각 판정은 제작자 자체 검토이며 외부 독립 검수가 아닙니다. 엔진 실속도 재생은 테스트하지 않았습니다. 남은 문제는 `docs/test-report.md`.
 
 라이선스: 코드/문서 MIT. 캐릭터 그림은 예시용으로 포함되며 재사용 라이선스가 아닙니다.
+
+
+## Style lock (most important)
+New fronts and direction stills must match the bundled sample (`assets/styles/style-king.png`): crayon/felt grain,
+thick dark outline, pastel palette, 2-head chibi proportions. An input image gives identity only. Check with
+`python3 eight-dir-idle-sprites/scripts/style_check.py --sample eight-dir-idle-sprites/assets/styles/style-king.png --candidate front.png --head-top-y Y1 --head-bottom-y Y2 --feet-y Y3`.
