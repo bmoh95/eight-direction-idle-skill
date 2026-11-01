@@ -131,13 +131,15 @@ def run(spec_path, check_only=False):
             if "flap" in ch and comps:
                 fold = D.get("flap_fold", ch["flap"]["fold"]); f = wave(t, ch["flap"]); A = fold * f
                 Ap = (ch["flap"].get("perp_fold", 0.08) if fold > 0 else 0.0) * f
-                if fold < 0: pw = premul(wing_rgba)   # spread mode (wings in front, e.g. back views): original wing is the backstop, nothing hidden is revealed
                 rec["flap_fold"] = round(A, 4); rec["flap_wave"] = round(f, 5)
                 for c, (hx, hy), v in comps:
                     u = np.array([-v[1], v[0]]); R = np.stack([v, u]); Sc = np.diag([1 - A, 1 - Ap])
                     L = R.T @ Sc @ R; tvec = np.array([hx, hy]) - L @ np.array([hx, hy])
                     layer = src.copy(); layer[~c, 3] = 0
                     pw = over(premul(cv2.warpAffine(layer, np.hstack([L, tvec[:, None]]).astype(np.float32), (w, h), flags=cv2.INTER_CUBIC)), pw)
+                if fold < 0:  # spread mode (back views): backstop ONLY the hinge band so the original wing outline never shows through (ghost/double edge)
+                    bs = wing_rgba.copy(); bs[~(wing & ring), 3] = 0
+                    pw = over(pw, premul(bs))
             fr = unpremul(over(premul(frame_b), pw))  # body over wings; in back views body has holes where wings cover it
             if comps and hidden.any():
                 rev = hidden & (fr[..., 3] < 250)
@@ -148,6 +150,11 @@ def run(spec_path, check_only=False):
                 dy = -int(round(ch["bob"]["amp_px"] * wave(t, ch["bob"])))
                 fr = shift_int(fr, dy); rec["bob_dy_px_int"] = dy
             fr[fr[..., 3] < 3] = 0  # drop resample dust below 3/255 alpha
+            if comps:  # drop detached specks (<40px islands) left by warped wing edges
+                lab_, k_ = nd.label(fr[..., 3] > 0)
+                if k_ > 1:
+                    sz = nd.sum(np.ones_like(lab_), lab_, range(1, k_ + 1)); small = np.isin(lab_, 1 + np.flatnonzero(sz < 40))
+                    fr[small] = 0
             if not any(rec.get(k) for k in ("breathe_head_lift_px", "flap_fold", "bob_dy_px_int")):
                 fr = src.copy(); rec["identical_to_still"] = True   # rest phase = the approved still, byte-exact pixels
             cv2.imwrite(f"{out}/{d}/{d}_{i:03d}.png", fr); dl.append(rec)

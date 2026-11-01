@@ -150,6 +150,10 @@ def main(argv=None):
     records = []
     for entry in entries:
         path = args.candidate if args.candidate else args.input_dir / entry["filename"]
+        if not args.candidate and not path.is_file():
+            alt = args.input_dir / f"{entry['key']}.png"  # skill-standard naming S.png ... SE.png
+            if alt.is_file():
+                path = alt
         record = {"direction": entry["key"], "path": str(path.resolve())}
         if not path.is_file():
             record["file_state"] = "missing"

@@ -1,4 +1,4 @@
-# Auto QA (24 frames/dir @ 24 fps)
+# Auto QA (24 frames/dir @ 24 fps, method: part-layer deformation of locked still (idle_rig.py))
 
 Phase sync across directions: True
 
@@ -7,9 +7,9 @@ Phase sync across directions: True
 | S | 0.0 | 0 | 0.22 | 1.52 | n/a (not grounded) | 0 | False | auto_ok:  |
 | SW | 0.0 | 0 | 0.31 | 1.38 | n/a (not grounded) | 0 | False | auto_ok:  |
 | W | 0.0 | 0 | 0.31 | 1.31 | n/a (not grounded) | 0 | False | auto_ok:  |
-| NW | 0.0 | 0 | 0.17 | 1.54 | n/a (not grounded) | 0 | False | auto_ok:  |
-| N | 0.0 | 0 | 0.19 | 1.5 | n/a (not grounded) | 0 | False | auto_ok:  |
-| NE | 0.0 | 0 | 0.17 | 1.54 | n/a (not grounded) | 0 | False | auto_ok:  |
+| NW | 0.0 | 0 | 0.17 | 1.56 | n/a (not grounded) | 0 | False | auto_ok:  |
+| N | 0.0 | 0 | 0.2 | 1.5 | n/a (not grounded) | 0 | False | auto_ok:  |
+| NE | 0.0 | 0 | 0.17 | 1.58 | n/a (not grounded) | 0 | False | auto_ok:  |
 | E | 0.0 | 0 | 0.3 | 1.4 | n/a (not grounded) | 0 | False | auto_ok:  |
 | SE | 0.0 | 0 | 0.29 | 1.46 | n/a (not grounded) | 0 | False | auto_ok:  |
 

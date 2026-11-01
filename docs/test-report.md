@@ -61,3 +61,9 @@
 - 재검: NE 이음매 해소, 자동 QA 8방향 auto_ok 유지(섬 0, 잠금 MAD 0).
 - king: 8방향 발 바닥 이동 0px, 발 무게중심 이동 0px, 섬 0, SE 활 형태·시위 24프레임 유지 → PASS.
 - 남은 관찰(needs_review 아님, 원본 스틸 성질): 방향별 캐릭터 화면 크기 차이(king N/S 대비 측면), bunny SE는 3/4 시점이라 먼 날개는 귀 뒤 끝만 보임.
+
+## Team 2 (Part I / Part E) — bunny back-view ghost outlines
+- Found (independent visual, 2x zoom): NE frame 12 showed doubled wing/ear/back outlines. Cause: spread mode (`flap_fold<0`, back views) composited the whole original wing as a backstop under the enlarged wing, so the overlapping near/far wing edges showed twice.
+- Fix (`idle_rig.py`, generic): backstop only the hinge band (wing ∩ body ring); drop detached alpha islands <40px. Regenerated all 8 bunny dirs; qa_idle auto_ok x8, islands 0.
+- Visual re-check NE/N/NW f0 vs f12: doubled outlines gone. needs_review: slightly ragged wing tip edge near NE ear and NW lower-left fringe at max spread.
+- `measure_sprite_framing.py --input-dir`: falls back to `<DIR>.png` (S.png…SE.png); king input measures 8/8.

@@ -850,6 +850,7 @@
      "global_dx": 0,
      "flap_fold": -0.05,
      "flap_wave": 0.5,
+     "guessed_hidden_body_px": 14,
      "bob_dy_px_int": -5
     },
     {
@@ -859,6 +860,7 @@
      "global_dx": 0,
      "flap_fold": -0.0629,
      "flap_wave": 0.62941,
+     "guessed_hidden_body_px": 61,
      "bob_dy_px_int": -6
     },
     {
@@ -868,6 +870,7 @@
      "global_dx": 0,
      "flap_fold": -0.075,
      "flap_wave": 0.75,
+     "guessed_hidden_body_px": 110,
      "bob_dy_px_int": -7
     },
     {
@@ -877,6 +880,7 @@
      "global_dx": 0,
      "flap_fold": -0.0854,
      "flap_wave": 0.85355,
+     "guessed_hidden_body_px": 183,
      "bob_dy_px_int": -9
     },
     {
@@ -886,6 +890,7 @@
      "global_dx": 0,
      "flap_fold": -0.0933,
      "flap_wave": 0.93301,
+     "guessed_hidden_body_px": 239,
      "bob_dy_px_int": -9
     },
     {
@@ -895,6 +900,7 @@
      "global_dx": 0,
      "flap_fold": -0.0983,
      "flap_wave": 0.98296,
+     "guessed_hidden_body_px": 295,
      "bob_dy_px_int": -10
     },
     {
@@ -904,6 +910,7 @@
      "global_dx": 0,
      "flap_fold": -0.1,
      "flap_wave": 1.0,
+     "guessed_hidden_body_px": 311,
      "bob_dy_px_int": -10
     },
     {
@@ -913,6 +920,7 @@
      "global_dx": 0,
      "flap_fold": -0.0983,
      "flap_wave": 0.98296,
+     "guessed_hidden_body_px": 295,
      "bob_dy_px_int": -10
     },
     {
@@ -922,6 +930,7 @@
      "global_dx": 0,
      "flap_fold": -0.0933,
      "flap_wave": 0.93301,
+     "guessed_hidden_body_px": 239,
      "bob_dy_px_int": -9
     },
     {
@@ -931,6 +940,7 @@
      "global_dx": 0,
      "flap_fold": -0.0854,
      "flap_wave": 0.85355,
+     "guessed_hidden_body_px": 183,
      "bob_dy_px_int": -9
     },
     {
@@ -940,6 +950,7 @@
      "global_dx": 0,
      "flap_fold": -0.075,
      "flap_wave": 0.75,
+     "guessed_hidden_body_px": 110,
      "bob_dy_px_int": -8
     },
     {
@@ -949,6 +960,7 @@
      "global_dx": 0,
      "flap_fold": -0.0629,
      "flap_wave": 0.62941,
+     "guessed_hidden_body_px": 61,
      "bob_dy_px_int": -6
     },
     {
@@ -958,6 +970,7 @@
      "global_dx": 0,
      "flap_fold": -0.05,
      "flap_wave": 0.5,
+     "guessed_hidden_body_px": 14,
      "bob_dy_px_int": -5
     },
     {
@@ -1248,11 +1261,11 @@
    "pivot": "unknown (flyer: no ground contact)",
    "wing_hinges": [
     [
-     679.1138216976913,
-     770.5103396070605
+     676.8032178585211,
+     715.8362573099415
     ]
    ],
-   "hidden_body_estimate_px": 26940,
+   "hidden_body_estimate_px": 31514,
    "frames": [
     {
      "frame": 0,
@@ -1271,6 +1284,7 @@
      "global_dx": 0,
      "flap_fold": -0.0017,
      "flap_wave": 0.01704,
+     "guessed_hidden_body_px": 13,
      "bob_dy_px_int": 0
     },
     {
@@ -1280,6 +1294,7 @@
      "global_dx": 0,
      "flap_fold": -0.0067,
      "flap_wave": 0.06699,
+     "guessed_hidden_body_px": 15,
      "bob_dy_px_int": -1
     },
     {
@@ -1289,6 +1304,7 @@
      "global_dx": 0,
      "flap_fold": -0.0146,
      "flap_wave": 0.14645,
+     "guessed_hidden_body_px": 10,
      "bob_dy_px_int": -1
     },
     {
@@ -1298,6 +1314,7 @@
      "global_dx": 0,
      "flap_fold": -0.025,
      "flap_wave": 0.25,
+     "guessed_hidden_body_px": 10,
      "bob_dy_px_int": -2
     },
     {
@@ -1307,6 +1324,7 @@
      "global_dx": 0,
      "flap_fold": -0.0371,
      "flap_wave": 0.37059,
+     "guessed_hidden_body_px": 94,
      "bob_dy_px_int": -4
     },
     {
@@ -1316,6 +1334,7 @@
      "global_dx": 0,
      "flap_fold": -0.05,
      "flap_wave": 0.5,
+     "guessed_hidden_body_px": 319,
      "bob_dy_px_int": -5
     },
     {
@@ -1325,6 +1344,7 @@
      "global_dx": 0,
      "flap_fold": -0.0629,
      "flap_wave": 0.62941,
+     "guessed_hidden_body_px": 667,
      "bob_dy_px_int": -6
     },
     {
@@ -1334,6 +1354,7 @@
      "global_dx": 0,
      "flap_fold": -0.075,
      "flap_wave": 0.75,
+     "guessed_hidden_body_px": 1045,
      "bob_dy_px_int": -7
     },
     {
@@ -1343,6 +1364,7 @@
      "global_dx": 0,
      "flap_fold": -0.0854,
      "flap_wave": 0.85355,
+     "guessed_hidden_body_px": 1349,
      "bob_dy_px_int": -9
     },
     {
@@ -1352,6 +1374,7 @@
      "global_dx": 0,
      "flap_fold": -0.0933,
      "flap_wave": 0.93301,
+     "guessed_hidden_body_px": 1576,
      "bob_dy_px_int": -9
     },
     {
@@ -1361,6 +1384,7 @@
      "global_dx": 0,
      "flap_fold": -0.0983,
      "flap_wave": 0.98296,
+     "guessed_hidden_body_px": 1723,
      "bob_dy_px_int": -10
     },
     {
@@ -1370,6 +1394,7 @@
      "global_dx": 0,
      "flap_fold": -0.1,
      "flap_wave": 1.0,
+     "guessed_hidden_body_px": 1769,
      "bob_dy_px_int": -10
     },
     {
@@ -1379,6 +1404,7 @@
      "global_dx": 0,
      "flap_fold": -0.0983,
      "flap_wave": 0.98296,
+     "guessed_hidden_body_px": 1723,
      "bob_dy_px_int": -10
     },
     {
@@ -1388,6 +1414,7 @@
      "global_dx": 0,
      "flap_fold": -0.0933,
      "flap_wave": 0.93301,
+     "guessed_hidden_body_px": 1576,
      "bob_dy_px_int": -9
     },
     {
@@ -1397,6 +1424,7 @@
      "global_dx": 0,
      "flap_fold": -0.0854,
      "flap_wave": 0.85355,
+     "guessed_hidden_body_px": 1349,
      "bob_dy_px_int": -9
     },
     {
@@ -1406,6 +1434,7 @@
      "global_dx": 0,
      "flap_fold": -0.075,
      "flap_wave": 0.75,
+     "guessed_hidden_body_px": 1045,
      "bob_dy_px_int": -8
     },
     {
@@ -1415,6 +1444,7 @@
      "global_dx": 0,
      "flap_fold": -0.0629,
      "flap_wave": 0.62941,
+     "guessed_hidden_body_px": 667,
      "bob_dy_px_int": -6
     },
     {
@@ -1424,6 +1454,7 @@
      "global_dx": 0,
      "flap_fold": -0.05,
      "flap_wave": 0.5,
+     "guessed_hidden_body_px": 319,
      "bob_dy_px_int": -5
     },
     {
@@ -1433,6 +1464,7 @@
      "global_dx": 0,
      "flap_fold": -0.0371,
      "flap_wave": 0.37059,
+     "guessed_hidden_body_px": 94,
      "bob_dy_px_int": -4
     },
     {
@@ -1442,6 +1474,7 @@
      "global_dx": 0,
      "flap_fold": -0.025,
      "flap_wave": 0.25,
+     "guessed_hidden_body_px": 10,
      "bob_dy_px_int": -2
     },
     {
@@ -1451,6 +1484,7 @@
      "global_dx": 0,
      "flap_fold": -0.0146,
      "flap_wave": 0.14645,
+     "guessed_hidden_body_px": 10,
      "bob_dy_px_int": -1
     },
     {
@@ -1460,6 +1494,7 @@
      "global_dx": 0,
      "flap_fold": -0.0067,
      "flap_wave": 0.06699,
+     "guessed_hidden_body_px": 15,
      "bob_dy_px_int": -1
     },
     {
@@ -1469,6 +1504,7 @@
      "global_dx": 0,
      "flap_fold": -0.0017,
      "flap_wave": 0.01704,
+     "guessed_hidden_body_px": 13,
      "bob_dy_px_int": 0
     }
    ]
