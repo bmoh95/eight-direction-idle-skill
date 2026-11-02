@@ -20,6 +20,40 @@ props and crayon texture each time. Prompt wording cannot remove that variance (
 `references/research-and-design.md` §4). Deforming the one approved still keeps every pixel's source
 fixed, so body texture, face and props cannot drift; motion becomes an explicit, logged transform.
 
+## Step 0 — Option intake (always first, before any generation or edit)
+The user should not have to remember options. On every invocation, before doing anything:
+1. Show the **option menu** as a question card, with **every** option on its own line: its **current value** (request merged over the defaults) **and the other choices**. The source is `scripts/options.json`. `python3 scripts/options.py [req.yaml] [--lang ko]` prints exactly this list.
+2. Fill in what the request already says, and ask **only about the missing items**. Required: `task` and `subject`. Also ask for `style_ref` when the style lock is a user reference, and for `hand` when there is a weapon.
+3. Close with the plan and ask **"이렇게 할까요?"** (Shall I proceed like this?). Start only after the user confirms.
+
+| Option | Default | Other choices |
+|---|---|---|
+| task | (required) | new_character / new_monster / partial_edit / front_face_icon / directional_stills / idle_animation / attack_motion / hurt_motion |
+| subject | (required) | free text |
+| style_lock / style_ref | repo_default (`assets/styles/style-king.png`) | user_reference (the user's image) |
+| view | SE+SW (the game currently uses SE and SW only) | front / SE / SW / 8dir |
+| camera | side (plane) | top_down, only when explicitly asked |
+| weapon / hand | none / left | free text / right, both, none |
+| background | transparent (cutout) | cream |
+| fps / frames (idle only) | 24 / 24 | 12, 30 / 12, 48 |
+| cutout_engine / cutout_model | rembg / birefnet-general (falls back to flood with a warning) | flood / birefnet-dis, birefnet-massive |
+| face_preset / eye_palette | standard / blue,red,black | line_nose, none / free text |
+| output_dir | ./out | free text |
+| qa_level | standard | quick / full |
+
+Helpers:
+- `index.html` is an offline, single-file form that generates the request text. Pick the options, switch between Korean and English, and copy the text.
+- `references/option-guide.md` has copy-paste example requests in Korean and English.
+- After editing `scripts/options.json`, run `python3 scripts/build_index.py` to refresh the copy inlined in `index.html`. A test checks that the two match.
+
+## Face rules (preset, not universal; any rule can be overridden per request)
+Use these with `face_preset`. `standard` turns on rules 1, 2 and 5. `line_nose` turns on all five. `none` turns them all off.
+1. **eye_shine_white**: the eye shine (highlight) is always pure white, whatever the eye colour.
+2. **eye_palette_limit**: human eye colours come only from `eye_palette` (default blue, red, black). Keep the eye shape, the outline and the shine; recolour only the iris.
+3. **female_no_nose**: female humans get no nose.
+4. **line_nose_beardless**: beardless humans get a thin vertical line nose with rounded ends, the same stroke thickness and colour as the mouth line. If there is no visible mouth, draw one in that stroke.
+5. **animals_keep_nose**: animals keep their own species nose.
+
 ## Style lock (highest priority — read before any new art)
 
 Matching the bundled sample art style and character proportions is the most important requirement of this skill.

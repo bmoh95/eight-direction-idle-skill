@@ -1,0 +1,261 @@
+{
+ "version": 1,
+ "options": [
+  {
+   "key": "task",
+   "en": "Task type",
+   "ko": "작업 종류",
+   "default": null,
+   "choices": [
+    "new_character",
+    "new_monster",
+    "partial_edit",
+    "front_face_icon",
+    "directional_stills",
+    "idle_animation",
+    "attack_motion",
+    "hurt_motion"
+   ],
+   "required": true,
+   "note": null
+  },
+  {
+   "key": "subject",
+   "en": "Subject description",
+   "ko": "대상 설명",
+   "default": null,
+   "choices": null,
+   "required": true,
+   "note": null
+  },
+  {
+   "key": "style_lock",
+   "en": "Style lock",
+   "ko": "그림체 고정",
+   "default": "repo_default",
+   "choices": [
+    "repo_default",
+    "user_reference"
+   ],
+   "required": false,
+   "note": null
+  },
+  {
+   "key": "style_ref",
+   "en": "Style reference image path",
+   "ko": "그림체 참고 이미지 경로",
+   "default": "assets/styles/style-king.png",
+   "choices": null,
+   "required": false,
+   "note": null
+  },
+  {
+   "key": "view",
+   "en": "View / directions",
+   "ko": "방향",
+   "default": "SE+SW",
+   "choices": [
+    "front",
+    "SE",
+    "SW",
+    "SE+SW",
+    "8dir"
+   ],
+   "required": false,
+   "note": "the game currently uses SE and SW only"
+  },
+  {
+   "key": "camera",
+   "en": "Camera",
+   "ko": "카메라",
+   "default": "side",
+   "choices": [
+    "side",
+    "top_down"
+   ],
+   "required": false,
+   "note": "top_down only when explicitly asked"
+  },
+  {
+   "key": "weapon",
+   "en": "Weapon / prop",
+   "ko": "무기·소품",
+   "default": "none",
+   "choices": null,
+   "required": false,
+   "note": null
+  },
+  {
+   "key": "hand",
+   "en": "Weapon hand",
+   "ko": "무기 든 손",
+   "default": "left",
+   "choices": [
+    "left",
+    "right",
+    "both",
+    "none"
+   ],
+   "required": false,
+   "note": "with a weapon"
+  },
+  {
+   "key": "background",
+   "en": "Background",
+   "ko": "배경",
+   "default": "transparent",
+   "choices": [
+    "transparent",
+    "cream"
+   ],
+   "required": false,
+   "note": null
+  },
+  {
+   "key": "fps",
+   "en": "Idle fps",
+   "ko": "idle fps",
+   "default": 24,
+   "choices": [
+    12,
+    24,
+    30
+   ],
+   "required": false,
+   "note": "idle only"
+  },
+  {
+   "key": "frames",
+   "en": "Idle frames per direction",
+   "ko": "방향당 idle 프레임",
+   "default": 24,
+   "choices": [
+    12,
+    24,
+    48
+   ],
+   "required": false,
+   "note": "idle only"
+  },
+  {
+   "key": "cutout_engine",
+   "en": "Cutout engine",
+   "ko": "누끼 엔진",
+   "default": "rembg",
+   "choices": [
+    "rembg",
+    "flood"
+   ],
+   "required": false,
+   "note": "falls back to flood with a warning if rembg is missing"
+  },
+  {
+   "key": "cutout_model",
+   "en": "Cutout model",
+   "ko": "누끼 모델",
+   "default": "birefnet-general",
+   "choices": [
+    "birefnet-general",
+    "birefnet-dis",
+    "birefnet-massive"
+   ],
+   "required": false,
+   "note": null
+  },
+  {
+   "key": "face_preset",
+   "en": "Face rules preset",
+   "ko": "얼굴 규칙 프리셋",
+   "default": "standard",
+   "choices": [
+    "standard",
+    "line_nose",
+    "none"
+   ],
+   "required": false,
+   "note": null
+  },
+  {
+   "key": "eye_palette",
+   "en": "Human eye colours",
+   "ko": "사람 눈 색 팔레트",
+   "default": "blue,red,black",
+   "choices": null,
+   "required": false,
+   "note": null
+  },
+  {
+   "key": "output_dir",
+   "en": "Output folder",
+   "ko": "출력 폴더",
+   "default": "./out",
+   "choices": null,
+   "required": false,
+   "note": null
+  },
+  {
+   "key": "qa_level",
+   "en": "QA checklist level",
+   "ko": "QA 수준",
+   "default": "standard",
+   "choices": [
+    "quick",
+    "standard",
+    "full"
+   ],
+   "required": false,
+   "note": null
+  }
+ ],
+ "face_rules": [
+  {
+   "key": "eye_shine_white",
+   "en": "Eye shine always pure white",
+   "ko": "눈 광은 항상 순수 흰색",
+   "default": true
+  },
+  {
+   "key": "eye_palette_limit",
+   "en": "Human eye colours only from the palette",
+   "ko": "사람 눈 색은 팔레트 안에서만",
+   "default": true
+  },
+  {
+   "key": "female_no_nose",
+   "en": "Female humans: no nose",
+   "ko": "여자 사람: 코 없음",
+   "default": false
+  },
+  {
+   "key": "line_nose_beardless",
+   "en": "Beardless humans: thin rounded vertical line nose, same stroke as the mouth",
+   "ko": "수염 없는 사람: 입선과 같은 굵기·색의 얇고 둥근 세로 1자 코",
+   "default": false
+  },
+  {
+   "key": "animals_keep_nose",
+   "en": "Animals keep their own nose",
+   "ko": "동물은 원래 코 유지",
+   "default": true
+  }
+ ],
+ "presets": {
+  "standard": [
+   "eye_shine_white",
+   "eye_palette_limit",
+   "animals_keep_nose"
+  ],
+  "line_nose": [
+   "eye_shine_white",
+   "eye_palette_limit",
+   "female_no_nose",
+   "line_nose_beardless",
+   "animals_keep_nose"
+  ],
+  "none": []
+ },
+ "confirm": {
+  "en": "Before executing, show the full plan with every option (current value + other choices) and ask \"Shall I proceed like this? (이렇게 할까요?)\". Do not start until I confirm.",
+  "ko": "실행 전에 모든 옵션(현재 값 + 다른 선택지)을 포함한 계획을 보여주고 '이렇게 할까요?'라고 물어본 뒤, 제가 확인하면 시작하세요."
+ }
+}

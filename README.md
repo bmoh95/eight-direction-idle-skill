@@ -106,3 +106,10 @@ thick dark outline, pastel palette, 2-head chibi proportions. An input image giv
 ## 시선 규칙
 - 정면(S)을 제외한 모든 방향은 머리·눈·몸이 같은 방향을 봅니다. 남동(SE)이면 눈동자도 화면 오른쪽 아래를 향하며 카메라를 보면 실패입니다.
 - 평면 카메라 기본값, 대각선 3/4, 탑다운은 요청 시에만, 눈 광, 무기 손 규칙은 그대로입니다.
+
+
+## Option guide
+You don't need to remember the options. When the skill runs, it first shows every option with its current value and the alternatives, then asks "이렇게 할까요?" before it starts.
+- Offline request form: open `eight-dir-idle-sprites/index.html` in a browser. It works in Korean and English and has a copy button.
+- Command line: `python3 eight-dir-idle-sprites/scripts/options.py [req.yaml]`.
+- Examples: `eight-dir-idle-sprites/references/option-guide.md`.

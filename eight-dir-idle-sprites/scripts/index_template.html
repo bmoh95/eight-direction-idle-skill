@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>eight-dir-idle-sprites · request generator</title>
+<style>
+body{font-family:system-ui,sans-serif;margin:0;background:#f6f3ee;color:#222}
+header{background:#3b2f2a;color:#fff;padding:12px 18px;display:flex;justify-content:space-between;align-items:center}
+main{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:16px}
+section{background:#fff;border-radius:10px;padding:14px;box-shadow:0 1px 3px #0002}
+label{display:block;font-size:13px;margin:8px 0 2px;font-weight:600}
+.alt{font-weight:400;color:#888;font-size:11px}
+input,select{width:100%;box-sizing:border-box;padding:6px;border:1px solid #ccc;border-radius:6px}
+.rule{display:flex;gap:6px;font-size:13px;margin:4px 0}.rule input{width:auto}
+textarea{width:100%;height:520px;box-sizing:border-box;font-family:ui-monospace,monospace;font-size:12px}
+button{padding:6px 12px;border-radius:6px;border:0;background:#c9573c;color:#fff;cursor:pointer}
+@media(max-width:800px){main{grid-template-columns:1fr}}
+</style></head><body>
+<header><b id="title">요청 문구 생성기</b><span><button id="lang">English</button></span></header>
+<main><section id="form"></section>
+<section><div style="display:flex;justify-content:space-between;align-items:center"><b id="outT">요청 문구</b><button id="copy">복사</button></div>
+<textarea id="out" readonly></textarea></section></main>
+<script id="options-json" type="application/json">
+/*OPTIONS_JSON*/
+</script>
+<script>
+const S=JSON.parse(document.getElementById('options-json').textContent);let L='ko';const st={},rules={};
+const T={ko:{title:'요청 문구 생성기',out:'요청 문구',copy:'복사',copied:'복사됨',other:'다른 선택',free:'자유 입력',face:'얼굴 규칙 (프리셋, 보편 규칙 아님)',head:'eight-dir-idle-sprites 스킬로 작업해줘. 옵션:',req:'(필수)'},
+ en:{title:'Request text generator',out:'Request text',copy:'Copy',copied:'Copied',other:'other',free:'free text',face:'Face rules (preset, not universal)',head:'Use the eight-dir-idle-sprites skill. Options:',req:'(required)'}};
+S.options.forEach(o=>st[o.key]=o.default??'');
+function applyPreset(p){S.face_rules.forEach(r=>rules[r.key]=(S.presets[p]||[]).includes(r.key));}
+applyPreset(st.face_preset);
+function render(){const t=T[L],f=document.getElementById('form');f.innerHTML='';
+ S.options.forEach(o=>{const lab=document.createElement('label');
+  const alts=o.choices?o.choices.filter(c=>String(c)!==String(st[o.key])).join(' / '):t.free;
+  lab.innerHTML=`${o[L]} <code>${o.key}</code> ${o.required?t.req:''}<br><span class="alt">${t.other}: ${alts}${o.note&&L==='en'?' · '+o.note:''}</span>`;f.appendChild(lab);
+  let el;if(o.choices){el=document.createElement('select');o.choices.forEach(c=>{const op=document.createElement('option');op.value=c;op.textContent=c;el.appendChild(op)});}
+  else el=document.createElement('input');el.value=st[o.key];el.id='o_'+o.key;
+  if(o.choices)el.onchange=()=>{st[o.key]=el.value;if(o.key==='face_preset')applyPreset(el.value);render()};else el.oninput=()=>{st[o.key]=el.value;gen()};f.appendChild(el)});
+ const h=document.createElement('label');h.textContent=t.face;f.appendChild(h);
+ S.face_rules.forEach(r=>{const d=document.createElement('div');d.className='rule';const c=document.createElement('input');c.type='checkbox';c.checked=rules[r.key];
+  c.onchange=()=>{rules[r.key]=c.checked;gen()};d.appendChild(c);d.appendChild(document.createTextNode(r[L]));f.appendChild(d)});
+ document.getElementById('title').textContent=t.title;document.getElementById('outT').textContent=t.out;document.getElementById('copy').textContent=t.copy;
+ document.getElementById('lang').textContent=L==='ko'?'English':'한국어';gen();}
+function gen(){const t=T[L];let s=t.head+'\n';
+ S.options.forEach(o=>{const alts=o.choices?o.choices.filter(c=>String(c)!==String(st[o.key])).join(' / '):t.free;
+  s+=`- ${o[L]} (${o.key}): ${st[o.key]||t.req}   | ${t.other}: ${alts}\n`});
+ s+=t.face+':\n';S.face_rules.forEach(r=>s+=`  [${rules[r.key]?'x':' '}] ${r[L]}\n`);
+ s+='\n'+S.confirm[L]+'\n';document.getElementById('out').value=s;}
+document.getElementById('lang').onclick=()=>{L=L==='ko'?'en':'ko';document.documentElement.lang=L;render()};
+document.getElementById('copy').onclick=async()=>{const o=document.getElementById('out');o.select();try{await navigator.clipboard.writeText(o.value)}catch(e){document.execCommand('copy')}
+ const b=document.getElementById('copy');b.textContent=T[L].copied;setTimeout(()=>b.textContent=T[L].copy,1200)};
+render();
+</script></body></html>
