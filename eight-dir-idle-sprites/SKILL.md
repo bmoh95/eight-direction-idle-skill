@@ -117,16 +117,19 @@ switch rows without resetting it (`references/engine-integration.md`).
 ## Step 2b — cutout (background removal) — never key by border flood-fill alone
 Generated stills come on a flat (usually white) background. A border flood-fill leaves background **trapped inside closed shapes** (bow + string, arm/cape gaps, staff loops) as opaque white patches, plus a 1–2 px light rim. Always cut with:
 ```bash
-python3 scripts/cutout.py raw.jpg job/DIR.png          # outer key + enclosed-pocket removal (iterated) + edge defringe
-python3 scripts/cutout.py --check job/DIR.png          # exit 1 if any background-white pocket/halo is left
+python3 -m pip install -r scripts/requirements-ml.txt   # once: rembg + onnxruntime (CPU) for the default engine
+python3 scripts/cutout.py raw.jpg job/DIR.png --prop-mask masks/DIR_bow.png   # default: --engine rembg --model birefnet-general
+python3 scripts/cutout.py --check job/DIR.png --prop-mask masks/DIR_bow.png   # exit 1 if any background-white pocket/halo is left
 ```
-Optional ML matte engine (better on JPEG halos and small ring/strand gaps; heavier):
-```bash
-python3 -m pip install -r scripts/requirements-ml.txt   # optional extra: rembg + onnxruntime (CPU)
-python3 scripts/cutout.py raw.jpg job/DIR.png --engine rembg                   # default model birefnet-general
-python3 scripts/cutout.py raw.jpg job/DIR.png --engine rembg --model birefnet-dis --prop-mask masks/DIR_bow.png
-```
-`--engine rembg` only supplies the alpha. The same trapped-pocket, prop-cavity, defringe and despill cleanup still runs, an **art guard** puts back clearly non-matte pixels the net erased, half-transparent matte-coloured pixels are cleared, and the written still is **always gated** (exit 1 on trapped matte or a white fringe). An ML cut is never a PASS by itself. If rembg is not installed it warns and falls back to `--engine flood`. Decontaminate is on by default (`--no-decontaminate` turns it off); `--matting` enables classic alpha matting (slow, rarely needed, turns decontaminate off). Model choice and the benchmark are in `references/cutout-engines.md`. Default model: `birefnet-general`. `birefnet-dis` erased white beard art on a bow still and failed the fringe gate, so use it only per still, after checking it.
+The default engine is `rembg` with `birefnet-general`, but rembg only supplies the alpha. The same trapped-pocket, prop-cavity, defringe and despill cleanup always runs after it. An **art guard** puts back clearly non-matte pixels the net erased, half-transparent matte-coloured pixels are cleared, and the written still is **always gated**: exit 1 on trapped matte or a white fringe. An ML cut is never a PASS by itself. If rembg is not installed, `cutout.py` prints a `FALLING BACK to --engine flood` warning and uses the border flood-fill. The cleanup and the gate still run, but install the extra for production art. Use `--engine flood` to force the old path.
+
+Other options: decontaminate is on by default (`--no-decontaminate` turns it off). `--matting` turns on classic alpha matting, which is slow, rarely needed and turns decontaminate off.
+
+Models are compared in `references/cutout-engines.md`:
+- `birefnet-dis` erased white beard art on a bow still and failed the fringe gate. Use it only per still, after checking it.
+- `birefnet-massive` gave the same result as general for about twice the memory, so it was not chosen.
+
+A BiRefNet model downloads about 1 GB on first use and needs about 4 GB RAM per 1024 px still. Run one still per process when RAM is tight.
 Enclosed pockets are removed only when they are flat background colour and lie close to the silhouette edge, so beard, fur, eye shine and other white art deep inside the body stay. Re-run `--check` on frame 0 and a mid-cycle frame after `idle_rig` (front_qa S7). Rigid prop masks must cover only prop pixels (wood, string, gripping hand) — never background pockets.
 
 ## Step 3 — masks (the only manual-judgement input)

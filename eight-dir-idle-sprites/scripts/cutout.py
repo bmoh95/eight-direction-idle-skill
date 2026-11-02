@@ -7,9 +7,9 @@ closed shapes (bow+string, arm loops, staff rings, cape gaps) stays opaque and
 shows as a white patch, and the anti-aliased rim keeps a 1-2px white halo.
 
 Usage:
-  cutout.py RAW OUT.png [--tol 12] [--min-hole 40]   # make RGBA still
+  cutout.py RAW OUT.png [--tol 12] [--min-hole 40]   # make RGBA still (default engine rembg/birefnet-general, falls back to flood)
   cutout.py RAW OUT.png --prop-mask masks/bow.png   # also clear pockets touching a prop
-  cutout.py RAW OUT.png --engine rembg [--model birefnet-general] [--no-decontaminate] [--matting]
+  cutout.py RAW OUT.png [--engine rembg|flood] [--model birefnet-general] [--no-decontaminate] [--matting]
   #   ML matte first (optional extra: pip install "rembg[cpu]"), then the SAME pocket/halo cleanup
   #   and the --check gate run on the result; falls back to the flood engine if rembg is missing.
   cutout.py --check STILL.png [--prop-mask M]   # fails on trapped matte OR white outline fringe (>1% of 2px edge band light)
@@ -179,6 +179,7 @@ def fringe(rgba, band_px=2, light=170):
 
 
 ENGINES = ("flood", "rembg")
+DEFAULT_ENGINE = "rembg"  # ML matte + mandatory cleanup/gate; falls back to flood if rembg is missing
 DEFAULT_MODEL = "birefnet-general"  # benchmark winner; birefnet-dis erased white beard art - see references/cutout-engines.md
 _SESSIONS = {}
 
@@ -190,7 +191,9 @@ def rembg_alpha(raw, model=DEFAULT_MODEL, decont=True, matting=False):
     try:
         from rembg import new_session, remove
     except Exception as e:  # not installed / onnxruntime missing
-        print(f"WARN: rembg unavailable ({e.__class__.__name__}); falling back to --engine flood", file=sys.stderr)
+        print(f"WARN: rembg is not installed ({e.__class__.__name__}: {e}). FALLING BACK to --engine flood "
+              f"(weaker on JPEG halos and small ring/strand gaps). Install: python3 -m pip install -r scripts/requirements-ml.txt",
+              file=sys.stderr)
         return None
     if model not in _SESSIONS:
         try:  # BiRefNet at 1024px peaks ~9 GB with the default CPU arena; without it it fits in ~4 GB
@@ -206,7 +209,7 @@ def rembg_alpha(raw, model=DEFAULT_MODEL, decont=True, matting=False):
     return out[..., 3], out[..., :3]
 
 
-def cutout(raw, tol=6, min_hole=40, prop=None, cavities=True, engine="flood", model=DEFAULT_MODEL,
+def cutout(raw, tol=6, min_hole=40, prop=None, cavities=True, engine=DEFAULT_ENGINE, model=DEFAULT_MODEL,
            decont=True, matting=False, min_alpha=8, art_guard=True, guard_d=40):
     rgb = np.array(raw.convert("RGB")).astype(float)
     bg = bg_color(rgb)
@@ -302,7 +305,7 @@ if __name__ == "__main__":
     ap.add_argument("--atlas-check", action="store_true", help="gate a final downscaled atlas (128px cells) for halo/pocket residue")
     ap.add_argument("--tol", type=float, default=6); ap.add_argument("--min-hole", type=int, default=40)
     ap.add_argument("--prop-mask", action="append", default=[], help="weapon/prop mask PNG (repeatable); pockets touching it are removed/flagged")
-    ap.add_argument("--engine", choices=ENGINES, default="flood", help="flood = border flood-fill (no extra deps); rembg = ML matte, then the same cleanup")
+    ap.add_argument("--engine", choices=ENGINES, default=DEFAULT_ENGINE, help="rembg (default) = ML matte, then the same cleanup; flood = border flood-fill (no extra deps, automatic fallback)")
     ap.add_argument("--model", default=DEFAULT_MODEL, help="rembg model (birefnet-dis | birefnet-general | birefnet-massive ...)")
     ap.add_argument("--no-decontaminate", action="store_true", help="rembg: keep raw edge colours (decontaminate is on by default)")
     ap.add_argument("--matting", action="store_true", help="rembg: classic alpha matting (slow; disables decontaminate)")

@@ -47,6 +47,33 @@ def test_rembg_missing_falls_back_to_flood():
     ok, rep = C.gate(rgba); assert ok, rep
 
 
+def _no_rembg():
+    real = builtins.__import__
+    def fake(name, *a, **k):
+        if name == "rembg": raise ImportError("no rembg")
+        return real(name, *a, **k)
+    return real, fake
+
+
+def test_default_engine_is_rembg_general():
+    assert C.DEFAULT_ENGINE == "rembg" and C.DEFAULT_MODEL == "birefnet-general"
+    import inspect
+    assert inspect.signature(C.cutout).parameters["engine"].default == "rembg"
+
+
+def test_default_engine_falls_back_and_still_gates():
+    import io, contextlib
+    real, fake = _no_rembg(); builtins.__import__ = fake; err = io.StringIO()
+    try:
+        raw, _, _ = still()
+        with contextlib.redirect_stderr(err): rgba, _, _ = C.cutout(raw)   # defaults only
+    finally:
+        builtins.__import__ = real
+    assert "FALLING BACK to --engine flood" in err.getvalue()
+    assert rgba[30, 76, 3] == 0
+    ok, rep = C.gate(rgba); assert ok, rep
+
+
 def _with_ml(alpha_fn):
     raw, body, r = still()
     rgb = np.array(raw)

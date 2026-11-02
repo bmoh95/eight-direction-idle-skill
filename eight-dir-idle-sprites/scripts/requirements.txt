@@ -3,4 +3,4 @@ Pillow>=10
 numpy>=1.24
 scipy>=1.10
 opencv-python-headless>=4.8
-# optional ML matte engine: python3 -m pip install -r scripts/requirements-ml.txt
+# default cutout engine (rembg): python3 -m pip install -r scripts/requirements-ml.txt  (without it cutout.py falls back to flood)
