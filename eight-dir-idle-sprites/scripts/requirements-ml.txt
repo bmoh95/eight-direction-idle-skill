@@ -1,0 +1,4 @@
+# Optional extra for `cutout.py --engine rembg` (ML matte). Not needed for the default flood engine.
+# Models download on first use (~1 GB each for BiRefNet) to ~/.u2net or ~/.rembg; ~4 GB RAM per 1024px still.
+-r requirements.txt
+rembg[cpu]>=2.0.86

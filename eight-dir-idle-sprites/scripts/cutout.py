@@ -9,6 +9,9 @@ shows as a white patch, and the anti-aliased rim keeps a 1-2px white halo.
 Usage:
   cutout.py RAW OUT.png [--tol 12] [--min-hole 40]   # make RGBA still
   cutout.py RAW OUT.png --prop-mask masks/bow.png   # also clear pockets touching a prop
+  cutout.py RAW OUT.png --engine rembg [--model birefnet-general] [--no-decontaminate] [--matting]
+  #   ML matte first (optional extra: pip install "rembg[cpu]"), then the SAME pocket/halo cleanup
+  #   and the --check gate run on the result; falls back to the flood engine if rembg is missing.
   cutout.py --check STILL.png [--prop-mask M]   # fails on trapped matte OR white outline fringe (>1% of 2px edge band light)
   #                        # report leftover matte (exit 1 if found)
 """
@@ -175,14 +178,67 @@ def fringe(rgba, band_px=2, light=170):
     return int(lt.sum()), int(band.sum())
 
 
-def cutout(raw, tol=6, min_hole=40, prop=None, cavities=True):
+ENGINES = ("flood", "rembg")
+DEFAULT_MODEL = "birefnet-general"  # benchmark winner; birefnet-dis erased white beard art - see references/cutout-engines.md
+_SESSIONS = {}
+
+
+def rembg_alpha(raw, model=DEFAULT_MODEL, decont=True, matting=False):
+    """ML matte via rembg. Returns (alpha uint8 HxW, rgb uint8 HxWx3) or None if rembg is unavailable.
+    Only the alpha is trusted: the cleanup below still hunts trapped matte, because a segmentation net
+    can keep a bow-string pocket opaque or leave it half-transparent white."""
+    try:
+        from rembg import new_session, remove
+    except Exception as e:  # not installed / onnxruntime missing
+        print(f"WARN: rembg unavailable ({e.__class__.__name__}); falling back to --engine flood", file=sys.stderr)
+        return None
+    if model not in _SESSIONS:
+        try:  # BiRefNet at 1024px peaks ~9 GB with the default CPU arena; without it it fits in ~4 GB
+            import onnxruntime as ort
+            so = ort.SessionOptions(); so.enable_cpu_mem_arena = False; so.enable_mem_pattern = False
+            _SESSIONS[model] = new_session(model, sess_opts=so)
+        except TypeError:
+            _SESSIONS[model] = new_session(model)
+    kw = dict(session=_SESSIONS[model], post_process_mask=False)
+    if matting: kw["alpha_matting"] = True  # rembg ignores decontaminate when matting is on
+    else: kw["decontaminate"] = bool(decont)
+    out = np.array(remove(raw.convert("RGB"), **kw).convert("RGBA"))
+    return out[..., 3], out[..., :3]
+
+
+def cutout(raw, tol=6, min_hole=40, prop=None, cavities=True, engine="flood", model=DEFAULT_MODEL,
+           decont=True, matting=False, min_alpha=8, art_guard=True, guard_d=40):
     rgb = np.array(raw.convert("RGB")).astype(float)
     bg = bg_color(rgb)
-    near = np.abs(rgb - bg).max(-1) <= tol
-    lab, _ = nd.label(near)
-    border = set(np.unique(np.concatenate([lab[0], lab[-1], lab[:, 0], lab[:, -1]]))) - {0}
-    outside = np.isin(lab, list(border))
-    rgba = np.dstack([rgb, np.where(outside, 0, 255)]).astype(np.uint8)
+    ml = rembg_alpha(raw, model, decont, matting) if engine == "rembg" else None
+    if ml is not None:
+        alpha, mrgb = ml
+        alpha = alpha.astype(np.int32)
+        d = np.abs(rgb - bg).max(-1)
+        if art_guard:
+            # Art guard: a segmentation net can erase white/off-white art that touches the background
+            # (birefnet-dis ate ~2k px of a white beard in the benchmark). Anything the flood fill keeps
+            # inside the silhouette whose colour is clearly NOT the matte is art -> force opaque.
+            near = d <= tol
+            lab, _ = nd.label(near)
+            border = set(np.unique(np.concatenate([lab[0], lab[-1], lab[:, 0], lab[:, -1]]))) - {0}
+            inside = ~np.isin(lab, list(border))
+            alpha = np.where(inside & (d > guard_d), 255, alpha)
+        # soft matte residue: half-transparent pixels that still carry the matte colour (ring holes,
+        # bow-string pockets) are background, not edge -> clear them instead of shipping a grey veil.
+        alpha = np.where((alpha < 250) & (d <= 20), 0, alpha)
+        alpha = np.where(alpha < min_alpha, 0, alpha).astype(np.uint8)
+        # keep the original pixels for opaque art (the pocket rules key on matte purity of the raw);
+        # use the decontaminated colour only on the soft edge.
+        col = np.where((alpha < 250)[..., None], mrgb.astype(float), rgb)
+        rgba = np.dstack([col, alpha]).astype(np.uint8)
+        rgba[alpha == 0] = 0
+    else:
+        near = np.abs(rgb - bg).max(-1) <= tol
+        lab, _ = nd.label(near)
+        border = set(np.unique(np.concatenate([lab[0], lab[-1], lab[:, 0], lab[:, -1]]))) - {0}
+        outside = np.isin(lab, list(border))
+        rgba = np.dstack([rgb, np.where(outside, 0, 255)]).astype(np.uint8)
     rep = []
     for _ in range(4):  # removing one trapped pocket can expose the next (pocket chains)
         rem, r = holes_and_halo(rgba, bg, tol, min_hole, prop=prop)
@@ -221,13 +277,22 @@ def atlas_check(path, cell=128, min_px=3, light=232, sat=24):
 
 
 def check(path, tol=6, min_hole=40, prop=None):
-    rgba = np.array(Image.open(path).convert("RGBA"))
+    rgba = np.array(Image.open(path).convert("RGBA")) if isinstance(path, str) else path
     if prop is None: print("WARN: --check without --prop-mask cannot see pockets far from the outline (bow-string interiors); pass every weapon/prop mask", file=sys.stderr)
     vis = rgba[..., 3] > 0
     bg = np.array([255.0, 255.0, 255.0])  # matte colour to hunt for
     rem, rep = holes_and_halo(rgba, bg, tol, min_hole, prop=prop)
     rep = [r for r in rep if r[0] in ('enclosed_bg', 'prop_pocket', 'small_pocket') or r[1] >= 20]
     return sum(r[1] for r in rep), rep
+
+
+def gate(rgba, tol=6, min_hole=40, prop=None):
+    """The --check gate on an in-memory RGBA. Returns (ok, report dict)."""
+    n, rep = check(rgba, tol, min_hole, prop)
+    fl, fb = fringe(rgba)
+    bad_f = fl > 0.01 * max(fb, 1)
+    return not (n or bad_f), {"matte_px": int(n), "regions": rep[:20], "outline_fringe_px": fl,
+                              "outline_band_px": fb, "fringe_fail": bool(bad_f)}
 
 
 if __name__ == "__main__":
@@ -237,18 +302,26 @@ if __name__ == "__main__":
     ap.add_argument("--atlas-check", action="store_true", help="gate a final downscaled atlas (128px cells) for halo/pocket residue")
     ap.add_argument("--tol", type=float, default=6); ap.add_argument("--min-hole", type=int, default=40)
     ap.add_argument("--prop-mask", action="append", default=[], help="weapon/prop mask PNG (repeatable); pockets touching it are removed/flagged")
+    ap.add_argument("--engine", choices=ENGINES, default="flood", help="flood = border flood-fill (no extra deps); rembg = ML matte, then the same cleanup")
+    ap.add_argument("--model", default=DEFAULT_MODEL, help="rembg model (birefnet-dis | birefnet-general | birefnet-massive ...)")
+    ap.add_argument("--no-decontaminate", action="store_true", help="rembg: keep raw edge colours (decontaminate is on by default)")
+    ap.add_argument("--matting", action="store_true", help="rembg: classic alpha matting (slow; disables decontaminate)")
+    ap.add_argument("--no-art-guard", action="store_true", help="rembg: trust the ML matte even where it erases clearly non-matte art")
     A = ap.parse_args()
     if A.atlas_check:
         r = atlas_check(A.inp); print({k: v for k, v in r.items() if k != "cells"}, r["cells"][:20])
         sys.exit(1 if (r["halo"] or r["pocket"]) else 0)
     if A.check:
         shp = Image.open(A.inp).size[::-1]
-        n, rep = check(A.inp, A.tol, A.min_hole, load_props(A.prop_mask, shp))
-        fl, fb = fringe(np.array(Image.open(A.inp).convert("RGBA")))
-        bad_f = fl > 0.01 * max(fb, 1)
-        print({"matte_px": int(n), "regions": rep[:20], "outline_fringe_px": fl, "outline_band_px": fb, "fringe_fail": bool(bad_f)})
-        sys.exit(1 if (n or bad_f) else 0)
+        ok, r = gate(np.array(Image.open(A.inp).convert("RGBA")), A.tol, A.min_hole, load_props(A.prop_mask, shp))
+        print(r)
+        sys.exit(0 if ok else 1)
     raw = Image.open(A.inp)
-    rgba, bg, rep = cutout(raw, A.tol, A.min_hole, load_props(A.prop_mask, raw.size[::-1]))
+    prop = load_props(A.prop_mask, raw.size[::-1])
+    rgba, bg, rep = cutout(raw, A.tol, A.min_hole, prop, engine=A.engine, model=A.model,
+                           decont=not A.no_decontaminate, matting=A.matting, art_guard=not A.no_art_guard)
     Image.fromarray(rgba).save(A.out)
-    print({"bg": bg.tolist(), "removed": rep})
+    # always gate the written still: an ML matte is not a PASS by itself
+    ok, r = gate(rgba, A.tol, A.min_hole, prop)
+    print({"engine": A.engine, "bg": bg.tolist(), "removed": rep, "gate": "PASS" if ok else "FAIL", **r})
+    sys.exit(0 if ok else 1)
