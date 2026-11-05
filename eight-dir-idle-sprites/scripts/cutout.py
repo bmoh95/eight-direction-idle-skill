@@ -255,28 +255,54 @@ def cutout(raw, tol=6, min_hole=40, prop=None, cavities=True, engine=DEFAULT_ENG
     return rgba, bg, rep
 
 
-def atlas_check(path, cell=128, min_px=3, light=232, sat=24):
+def atlas_check(path, cell=128, min_px=3, light=232, sat=24, rects=None):
     """Final-atlas gate (S7f): after LANCZOS downscale a matte pocket survives as a tiny light, unsaturated
     patch walled by the dark outline/prop, and a matte rim survives as light pixels with partial alpha.
     Stills-only gates never see these. Count per cell: light partial-alpha edge pixels (halo) and enclosed
     light flat specks of >= min_px whose rim is mostly dark outline (pocket)."""
-    im = np.array(Image.open(path).convert("RGBA")); H, W = im.shape[:2]; tot = {"halo": 0, "pocket": 0, "cells": []}
-    for y in range(0, H, cell):
-        for x in range(0, W, cell):
-            c = im[y:y + cell, x:x + cell]; a = c[..., 3]
-            if a.max() < 8: continue
-            rgb = c[..., :3].astype(float); lum = rgb.mean(-1); s = rgb.max(-1) - rgb.min(-1)
-            out = a < 8; lt = (a >= 8) & (lum >= light) & (s <= sat)
-            halo = lt & (a < 200) & nd.binary_dilation(out, iterations=1)
-            lab, k = nd.label(lt); pk = 0
-            for i in range(1, k + 1):
-                m = lab == i; n = int(m.sum())
-                if n < min_px: continue
-                rim = nd.binary_dilation(m, iterations=1) & ~m & ~out
-                if rim.any() and (lum[rim] < 110).mean() >= 0.6 and rgb[m].min(-1).mean() >= 246: pk += n
-            if halo.sum() or pk: tot["cells"].append((x // cell, y // cell, int(halo.sum()), pk))
-            tot["halo"] += int(halo.sum()); tot["pocket"] += pk
+    im = np.array(Image.open(path).convert("RGBA")); H, W = im.shape[:2]; tot = {"halo": 0, "pocket": 0, "cells": [], "gutter_px": 0, "edge_contact": []}
+    if rects is None:
+        rects = [(x, y, min(cell, W - x), min(cell, H - y)) for y in range(0, H, cell) for x in range(0, W, cell)]
+    if not rects: raise ValueError("atlas manifest contains no frame rectangles")
+    occupied = np.zeros((H, W), dtype=bool)
+    for index, (x, y, w, h) in enumerate(rects):
+        if any(type(v) is not int for v in (x, y, w, h)) or x < 0 or y < 0 or w <= 0 or h <= 0 or x + w > W or y + h > H:
+            raise ValueError(f"invalid atlas rectangle: {(x, y, w, h)}")
+        if occupied[y:y+h, x:x+w].any(): raise ValueError("overlapping atlas rectangles")
+        occupied[y:y+h, x:x+w] = True
+        c = im[y:y + h, x:x + w]; a = c[..., 3]
+        if a.max() < 8: continue
+        if (a[0, :] > 0).any() or (a[-1, :] > 0).any() or (a[:, 0] > 0).any() or (a[:, -1] > 0).any():
+            tot["edge_contact"].append(index)
+        rgb = c[..., :3].astype(float); lum = rgb.mean(-1); s = rgb.max(-1) - rgb.min(-1)
+        out = a < 8; lt = (a >= 8) & (lum >= light) & (s <= sat)
+        halo = lt & (a < 200) & nd.binary_dilation(out, iterations=1)
+        lab, k = nd.label(lt); pk = 0
+        for i in range(1, k + 1):
+            m = lab == i; n = int(m.sum())
+            if n < min_px: continue
+            rim = nd.binary_dilation(m, iterations=1) & ~m & ~out
+            if rim.any() and (lum[rim] < 110).mean() >= 0.6 and rgb[m].min(-1).mean() >= 246: pk += n
+        if halo.sum() or pk: tot["cells"].append((x // cell, y // cell, int(halo.sum()), pk))
+        tot["halo"] += int(halo.sum()); tot["pocket"] += pk
+    tot["gutter_px"] = int(((im[..., 3] > 0) & ~occupied).sum())
     return tot
+
+
+def atlas_manifest_rects(path, manifest_path):
+    """Read either pack_idle or assemble_idle rectangles for this exact atlas."""
+    import json
+    from pathlib import Path
+    manifest_path = Path(manifest_path).resolve()
+    data = json.loads(manifest_path.read_text(encoding="utf-8"))
+    atlas_path = Path(path).resolve()
+    if "frame_rects" in data:
+        if (manifest_path.parent / data["atlas"]).resolve() != atlas_path:
+            raise ValueError("manifest atlas path does not match input")
+        return [rect for direction in data["rows_directions"] for rect in data["frame_rects"][direction]]
+    matches = [d for d in data.get("directions", []) if (manifest_path.parent / d["atlas"]).resolve() == atlas_path]
+    if len(matches) != 1: raise ValueError("manifest must identify this atlas exactly once")
+    return [frame["atlas_rect"] for frame in matches[0]["frames"]]
 
 
 def check(path, tol=6, min_hole=40, prop=None):
@@ -302,7 +328,8 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("inp"); ap.add_argument("out", nargs="?")
     ap.add_argument("--check", action="store_true")
-    ap.add_argument("--atlas-check", action="store_true", help="gate a final downscaled atlas (128px cells) for halo/pocket residue")
+    ap.add_argument("--atlas-check", action="store_true", help="check atlas for halo, pockets and gutter contamination; legacy fallback uses 128px cells")
+    ap.add_argument("--atlas-manifest", help="manifest with frame rectangles; required for padded atlases")
     ap.add_argument("--tol", type=float, default=6); ap.add_argument("--min-hole", type=int, default=40)
     ap.add_argument("--prop-mask", action="append", default=[], help="weapon/prop mask PNG (repeatable); pockets touching it are removed/flagged")
     ap.add_argument("--engine", choices=ENGINES, default=DEFAULT_ENGINE, help="rembg (default) = ML matte, then the same cleanup; flood = border flood-fill (no extra deps, automatic fallback)")
@@ -312,8 +339,14 @@ if __name__ == "__main__":
     ap.add_argument("--no-art-guard", action="store_true", help="rembg: trust the ML matte even where it erases clearly non-matte art")
     A = ap.parse_args()
     if A.atlas_check:
-        r = atlas_check(A.inp); print({k: v for k, v in r.items() if k != "cells"}, r["cells"][:20])
-        sys.exit(1 if (r["halo"] or r["pocket"]) else 0)
+        try:
+            rects = atlas_manifest_rects(A.inp, A.atlas_manifest) if A.atlas_manifest else None
+            r = atlas_check(A.inp, rects=rects)
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            print(f"atlas check error: {error}", file=sys.stderr); sys.exit(2)
+        print({k: v for k, v in r.items() if k != "cells"}, r["cells"][:20])
+        if r["edge_contact"]: print("WARN: frames touch the canvas edge; inspect for clipping or neighboring content", file=sys.stderr)
+        sys.exit(1 if (r["halo"] or r["pocket"] or r["gutter_px"]) else 0)
     if A.check:
         shp = Image.open(A.inp).size[::-1]
         ok, r = gate(np.array(Image.open(A.inp).convert("RGBA")), A.tol, A.min_hole, load_props(A.prop_mask, shp))

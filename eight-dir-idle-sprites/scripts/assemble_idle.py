@@ -73,6 +73,7 @@ def prepare(plan, base, output):
         checked_int(step["duration_ms"], 10, 60000, "duration_ms")
     exports = plan.get("export", {})
     columns = checked_int(exports.get("atlas_columns", 4), 1, 16, "atlas_columns")
+    padding = checked_int(exports.get("atlas_padding_px", 8), 0, 128, "atlas_padding_px")
     preview = checked_int(exports.get("preview_max_side", 512), 32, 2048, "preview_max_side")
     directions = plan["directions"]
     if not isinstance(directions, list) or not 1 <= len(directions) <= 16:
@@ -117,7 +118,7 @@ def prepare(plan, base, output):
             warnings.append("some_named_states_have_identical_visible_pixels")
         if records[timeline[-1]["state"]]["visible_pixel_sha256"] == records["neutral"]["visible_pixel_sha256"]:
             warnings.append("duplicate_endpoint_may_hold_at_loop_boundary")
-        sheet_pixels = source.width * columns * source.height * math.ceil(len(timeline) / columns)
+        sheet_pixels = (source.width + 2 * padding) * columns * (source.height + 2 * padding) * math.ceil(len(timeline) / columns)
         if sheet_pixels > 64000000:
             raise ValueError("Atlas exceeds 64M pixels; split clips or explicitly export lower-resolution frames")
         steps = [images[s["state"]] for s in timeline]
@@ -131,12 +132,12 @@ def prepare(plan, base, output):
                          "transitions_including_loop": transitions,
                          "anchor_from_plan": direction.get("anchor", {"kind": "unknown"}),
                          "neutral_same_bytes_as_source": paths["neutral"].read_bytes() == source_path.read_bytes()})
-    return prepared, timeline, columns, preview
+    return prepared, timeline, columns, preview, padding
 
 
 def assemble(plan_path, output):
     plan = json.loads(plan_path.read_text(encoding="utf-8"))
-    prepared, timeline, columns, preview = prepare(plan, plan_path.parent, output)
+    prepared, timeline, columns, preview, padding = prepare(plan, plan_path.parent, output)
     output.mkdir(parents=True, exist_ok=False)
     manifest = {"schema_version": 1, "state": "assembled_visual_review_required",
                 "motion_kind": plan.get("motion_kind", "unspecified"),
@@ -157,7 +158,8 @@ def assemble(plan_path, output):
         archived = src_folder / ("original" + record["source_path"].suffix)
         shutil.copy2(record["source_path"], archived)
         width, height = record["size_pixels"]
-        atlas = Image.new("RGBA", (width * columns, height * math.ceil(len(timeline) / columns)))
+        stride_x, stride_y = width + 2 * padding, height + 2 * padding
+        atlas = Image.new("RGBA", (stride_x * columns, stride_y * math.ceil(len(timeline) / columns)))
         frames, mappings = [], []
         ratio = min(1, preview / max(width, height))
         view_size = (max(1, round(width * ratio)), max(1, round(height * ratio)))
@@ -166,14 +168,18 @@ def assemble(plan_path, output):
             frame_path = folder / f"idle_{i:02d}.png"
             shutil.copy2(source_path, frame_path)
             image = load_image(source_path, png=True)
-            atlas.paste(image, ((i % columns) * width, (i // columns) * height))
+            x, y = (i % columns) * stride_x + padding, (i // columns) * stride_y + padding
+            atlas.paste(image, (x, y))
+            bounds = image.getchannel("A").getbbox()
+            if bounds and (bounds[0] == 0 or bounds[1] == 0 or bounds[2] == width or bounds[3] == height):
+                record["warnings"].append(f"frame_{i}_touches_canvas_edge_review_for_clipping_or_neighbor_art")
             thumb = image.resize(view_size, Image.Resampling.LANCZOS)
             background = Image.new("RGBA", view_size, "#f3eadb")
             background.alpha_composite(thumb)
             frames.append(background.convert("RGB"))
             mappings.append({"file": str(frame_path.relative_to(output)), "state": step["state"],
                              "duration_ms": step["duration_ms"],
-                             "atlas_rect": [(i % columns) * width, (i // columns) * height, width, height],
+                             "atlas_rect": [x, y, width, height],
                              "source_state_sha256": record["states"][step["state"]]["file_sha256"]})
         atlas.save(folder / "idle-atlas.png")
         palette = frames[0].quantize(colors=256)
@@ -191,7 +197,8 @@ def assemble(plan_path, output):
         if encoded_count == 1:
             record["warnings"].append("preview_downscale_or_quantization_lost_motion")
         manifest["directions"].append({"key": key, "source": str(archived.relative_to(output)),
-                                       "size_pixels": [width, height], "display_frame_count": len(timeline),
+                                       "size_pixels": [width, height], "atlas_padding_px": padding,
+                                       "atlas_cell": [stride_x, stride_y], "display_frame_count": len(timeline),
                                        "unique_visible_states": record["unique_visible_states"], "frames": mappings,
                                        "atlas": str((folder / "idle-atlas.png").relative_to(output)),
                                        "preview": str(gif_path.relative_to(output)),

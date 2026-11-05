@@ -213,12 +213,21 @@ python3 scripts/idle_rig.py job/spec.json --check   # spec validation only: loco
 python3 scripts/idle_rig.py job/spec.json      # frames: out_dir/DIR/DIR_000..023.png + transforms.json
 python3 scripts/qa_idle.py  job/spec.json      # qa_report.json/.md (auto metrics)
 python3 scripts/pack_idle.py job/spec.json     # atlas, atlas_manifest.json, GIF previews, same-phase sheet, game-size strip
+python3 scripts/cutout.py job/out/atlas_256.png --atlas-check --atlas-manifest job/out/atlas_manifest.json
 ```
 Spec format: `templates/idle_spec.ground.example.json`, `templates/idle_spec.fly.example.json`
 (worked 8-direction spec: repo `tests/fly_bunny/spec_8dir.json`; run it to regenerate outputs locally, outputs are not committed).
 Skill repo content rule: only scripts, templates, docs, style samples and small generic fixtures. Never commit
 game/project character idle packs, atlases, GIFs or generated frame outputs here; they belong in the game repo or a work folder.
 Relative paths inside a spec (`still`, masks, `out_dir`) resolve against the spec file's folder.
+The default atlas has 8 transparent pixels on every side of every frame (16 px between neighbours).
+Read the exact `frame_rects` / `atlas_rect` and `atlas_cell` from the manifest; do not calculate a
+source rectangle by multiplying only the frame size. `pack_idle.py --padding N` and the key-pose
+plan's `export.atlas_padding_px` can override this. A frame touching its own source-canvas edge
+is flagged for visual inspection: padding cannot remove an arrow or other art already inside a
+wrong frame. Produce and inspect key poses as separate full canvases before packing; reject a generated
+sheet if a neighbouring pose or projectile intrudes into another frame. Review adjacent attack frames
+independently at zoom, especially the frame before release.
 `scripts/` here means this skill folder's `scripts/`; run with any cwd.
 Do one representative direction first, review it, then run all 8.
 The example specs in `templates/` point at placeholder `input/*.png` stills, so `--check` fails on

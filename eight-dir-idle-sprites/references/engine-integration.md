@@ -21,9 +21,21 @@ Flyer: body centre; the bob is baked into frames (integer px), so do not add an 
 Use the same pivot for all 8 rows; do not re-derive pivots from alpha bounds per frame.
 
 ## Atlas notes
-Keep transparent padding; if your packer trims, preserve original offsets (trim + offset) or the
-pivot shifts per frame. Use alpha bleeding / extrude to avoid dark edge halos with filtering
-(TexturePacker docs, "Reduce border artifacts", "Extrude").
+Each frame has 8 transparent pixels per side by default (16 px between adjacent frames). In
+`atlas_manifest.json`, `cell` is the visible frame canvas, `atlas_cell` is the padded stride,
+`padding_px` is the inset and `frame_rects[direction][frame]` is `[x, y, width, height]`. For the
+key-pose route, use each frame's `atlas_rect` in `idle-manifest.json`. Set the engine's source
+region to that rectangle and keep the original frame size and pivot; multiplying the frame width
+by the index or using equally divided `hframes` without accounting for padding is incorrect.
+Legacy unpadded atlases still use their own metadata.
+
+For Godot use `AtlasTexture.region` or `draw_texture_rect_region` with the manifest rectangle;
+keep the original content-space pivot. Use nearest filtering for pixel art, disable mipmaps unless
+padding is designed for their footprint, and inspect filtered rendering for edge halos. Run
+`cutout.py <atlas> --atlas-check --atlas-manifest <manifest>` to validate the actual rectangles
+and transparent gutters. Inspect every edge-contact warning and neighboring frame at zoom: a
+misplaced arrow already drawn inside a frame cannot be distinguished reliably by padding alone.
+If a packer trims, preserve trim offsets or the pivot shifts per frame.
 
 ## Timing
 24 fps = 41.67 ms per frame. GIF delays are in 1/100 s (GIF89a spec), so GIF previews alternate

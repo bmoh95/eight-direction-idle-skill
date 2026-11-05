@@ -7,11 +7,16 @@ os.makedirs(out, exist_ok=True)
 for f in ['atlas_256.png','atlas_manifest.json','qa_report.md','qa_report.json','transforms.json','same_phase_sheet.png','game_size_strip.png']:
     if os.path.exists(os.path.join(src,f)): shutil.copy(os.path.join(src,f), out)
 m = json.load(open(os.path.join(src,'atlas_manifest.json')))
-cell = m.get('cell_px', 256); atlas = Image.open(os.path.join(src,'atlas_256.png'))
-dirs = m['rows_directions']; n = atlas.width // cell
+atlas = Image.open(os.path.join(src,'atlas_256.png'))
+dirs = m['rows_directions']; n = m['frames_per_row']
 for r, d in enumerate(dirs):
     os.makedirs(os.path.join(out,'frames_256',d), exist_ok=True)
-    fr = [atlas.crop((c*cell, r*cell, (c+1)*cell, (r+1)*cell)) for c in range(n)]
+    if 'frame_rects' in m:
+        rects = m['frame_rects'][d]
+    else:
+        cell = m.get('cell', [m.get('cell_px', 256)] * 2)
+        rects = [[c * cell[0], r * cell[1], *cell] for c in range(n)]
+    fr = [atlas.crop((x, y, x + w, y + h)) for x, y, w, h in rects]
     for c, im in enumerate(fr): im.save(os.path.join(out,'frames_256',d,f'{d}_{c:03d}.png'))
     bg = [Image.alpha_composite(Image.new('RGBA', im.size, (64,64,96,255)), im).convert('P', palette=Image.ADAPTIVE) for im in fr]
     dur = [[40,40,50][i%3] for i in range(n)]
