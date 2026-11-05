@@ -123,6 +123,20 @@ Then open the result, compare against the front at the same zoom, measure, and r
 
 ## Step 2 — idle plan (per character, shared by all 8 directions)
 
+**Required motion-design handoff:** Before planning any idle, load
+`rossark-motion-skill` from the available skills and read its `SKILL.md`, especially the character,
+acting, motion and review sections. If it is not installed, install the existing upstream skill from
+`https://github.com/rossark0/rossark-motion-skill`, then read it; do not create a substitute skill.
+Follow `references/rossark-idle-handoff.md` to translate its motion guidance into the spec used by
+this skill. Apply the user's requested timing and style first. Preserve each approved directional
+still, the shared phase, and the contact and prop constraints below.
+
+Rossark supplies motion design guidance and SwiftUI / React Native templates; it does not provide a
+ready-to-run Godot sprite-frame renderer. For this pipeline, implement the compatible motion with
+`scripts/idle_rig.py` and run the existing QA and packing steps. Do not claim that Rossark directly
+rendered the frames. If the requested motion exceeds this renderer's capabilities, report that limit
+and use the separately documented key-pose route only when appropriate.
+
 Pick channels by structure; never invent anatomy:
 
 | Structure | Channels | Pivot | Must not |

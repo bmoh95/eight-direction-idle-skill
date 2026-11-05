@@ -7,6 +7,14 @@
 핵심: idle 프레임을 이미지 생성기로 매번 다시 그리지 않고, **승인된 스틸 한 장을 부위별로 변형**(호흡 늘이기, 날개 접기, 부유 상하 이동)합니다.
 그래서 얼굴·질감·소품·크기가 프레임마다 바뀌지 않고, 모든 변형은 로그로 남습니다.
 
+idle 단계에서는 [rossark-motion-skill](https://github.com/rossark0/rossark-motion-skill)의 동작 설계 지침을 읽고 호흡·날갯짓·부유의 주기와 진폭을 정합니다. 실제 프레임은 이 저장소의 `idle_rig.py`가 생성합니다. Rossark 스킬이 없다면 해당 저장소의 기존 스킬을 설치해 사용합니다. 연결 절차와 지원 범위는 `eight-dir-idle-sprites/references/rossark-idle-handoff.md`를 참고하세요.
+
+### Rakazo 플러그인으로 설치
+
+Rakazo의 **Integrations → + → From GitHub**에서 `https://github.com/bmoh95/eight-direction-idle-skill`을 입력하고 미리보기 후 스킬을 추가합니다. `plugin.json`과 `skills/eight-dir-idle-sprites/SKILL.md`가 Rakazo용 설치 경로입니다.
+
+Rakazo 플러그인은 지침만 설치하며 저장소의 Python 스크립트·이미지·Rossark 스킬을 함께 설치하거나 실행하지 않습니다. 프레임 생성에는 해당 도구를 사용할 수 있는 별도 실행 환경이 필요합니다. GitHub에서 기존 스킬 폴더 전체를 설치하는 아래 방법은 별도로 유지됩니다.
+
 ## 설치
 ```bash
 git clone https://github.com/bmoh95/eight-direction-idle-skill.git
