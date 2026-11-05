@@ -36,7 +36,7 @@ actually support the requested work; otherwise say what is missing.
    backgrounds, body proportions, props, hands and contact points. Report failed or untested checks.
    Only call an eight-direction pack complete when all requested frames exist and have been reviewed.
 
-When an available packer creates an atlas, leave at least 8 transparent pixels on each side of
+When an available packer creates an atlas, leave at least 16 transparent pixels on each side of
 each frame by default and record exact per-frame source rectangles, padded cell stride and pivot.
 Engine playback must use those rectangles, not the unpadded frame width as the atlas stride. Inspect
 each frame and its neighbours, including arrow release frames: transparent gaps prevent sampling

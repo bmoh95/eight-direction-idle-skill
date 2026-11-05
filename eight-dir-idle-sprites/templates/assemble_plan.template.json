@@ -16,7 +16,7 @@
  ],
  "export": {
   "atlas_columns": 8,
-  "atlas_padding_px": 8,
+  "atlas_padding_px": 16,
   "preview_max_side": 512
  },
  "directions": [

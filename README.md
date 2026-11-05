@@ -75,9 +75,10 @@ python3 SKILL_DIR/scripts/pack_idle.py spec.json   # atlas_256.png, atlas_manife
 
 ## 게임 엔진에서 사용
 - 정확한 프레임: `out_dir/DIR/DIR_000..023.png` (PNG 시퀀스). 한 번에 쓰려면 `atlas_256.png`(행 = 방향, 열 = 프레임; 행 순서는 `atlas_manifest.json`의 `rows_directions`).
-- 아틀라스는 각 프레임 사방에 기본 8px 투명 여백(프레임 사이 16px)을 둡니다. `--padding N`으로 변경할 수 있습니다.
+- 아틀라스는 각 프레임 사방에 기본 16px 투명 여백(프레임 사이 32px)을 둡니다. `--padding N`으로 변경할 수 있습니다.
+- 여백이 커지면 텍스처 메모리와 가로·세로 크기가 늘어납니다. 4096px 초과는 경고로 기록하며 기기별 최대 텍스처 크기를 확인하고 필요하면 클립을 나누세요. 자동 분할은 제공하지 않습니다.
 - `atlas_manifest.json`: `cell`(원래 프레임 크기), `atlas_cell`(여백을 포함한 칸 간격), `padding_px`, 방향별 `frame_rects`, `fps`, loop, pivot/접점(`contact_y_source_px` × `scale_from_source`), 고유/표시 프레임 수. 엔진에서는 프레임 크기만 곱하지 말고 `frame_rects`를 사용하세요.
-- 키 포즈 조립은 `export.atlas_padding_px`(기본 8)와 각 `atlas_rect`를 사용합니다. `python3 SKILL_DIR/scripts/cutout.py <atlas.png> --atlas-check --atlas-manifest <manifest.json>`으로 여백과 테두리를 검사하세요. 이미 프레임 안에 잘못 들어간 화살은 자동으로 분리할 수 없어 육안 검수가 필요합니다.
+- 키 포즈 조립은 `export.atlas_padding_px`(기본 16)와 각 `atlas_rect`를 사용합니다. `python3 SKILL_DIR/scripts/cutout.py <atlas.png> --atlas-check --atlas-manifest <manifest.json>`으로 여백과 테두리를 검사하세요. 이미 프레임 안에 잘못 들어간 화살은 자동으로 분리할 수 없어 육안 검수가 필요합니다.
 - 피벗: 지상형 = 발 접점(8방향 동일), 비행형 = 몸 중심(부유는 프레임에 포함되어 있으니 엔진에서 추가 bob 금지).
 - 방향 전환 시 idle 시계를 리셋하지 말고 프레임 번호·진행도 유지: Godot 4 `AnimatedSprite2D.set_frame_and_progress(f, p)`, Unity `Animator.Play(state, 0, normalizedTime)`, 직접 구현 시 `index = int(t * fps) % n`.
 - 아틀라스 트리밍 시 오프셋 보존(안 하면 프레임마다 피벗이 흔들림). 자세한 내용: `eight-dir-idle-sprites/references/engine-integration.md`.

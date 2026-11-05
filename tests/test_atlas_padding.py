@@ -45,8 +45,8 @@ def check_pack(base):
     run(SCRIPTS / "pack_idle.py", spec, "--cell", "16", "--game", "16")
     m = json.loads((out / "atlas_manifest.json").read_text()); im = Image.open(out / m["atlas"]).convert("RGBA")
     rects = m["frame_rects"]["SW"]
-    assert m["cell"] == [16, 12] and m["atlas_cell"] == [32, 28] and m["padding_px"] == 8
-    assert rects[4] == [136, 8, 16, 12] and rects[5] == [168, 8, 16, 12]
+    assert m["cell"] == [16, 12] and m["atlas_cell"] == [48, 44] and m["padding_px"] == 16
+    assert rects[4] == [208, 16, 16, 12] and rects[5] == [256, 16, 16, 12]
     for i, (x, y, w, h) in enumerate(rects): assert im.crop((x, y, x+w, y+h)).tobytes() == frame(i == 5).tobytes()
     check_gutters(im, rects)
     report = cutout.atlas_check(out / m["atlas"], rects=cutout.atlas_manifest_rects(out / m["atlas"], out / "atlas_manifest.json"))
@@ -65,14 +65,20 @@ def check_assemble(base):
     run(SCRIPTS / "assemble_idle.py", "--plan", path, "--output-dir", out)
     m = json.loads((out / "idle-manifest.json").read_text()); direction = m["directions"][0]
     rects = [f["atlas_rect"] for f in direction["frames"]]
-    assert direction["atlas_padding_px"] == 8 and direction["atlas_cell"] == [32, 28]
-    assert rects[4] == [40, 36, 16, 12] and rects[5] == [72, 36, 16, 12]
+    assert direction["atlas_padding_px"] == 16 and direction["atlas_cell"] == [48, 44]
+    assert rects[4] == [64, 60, 16, 12] and rects[5] == [112, 60, 16, 12]
     im = Image.open(out / direction["atlas"]).convert("RGBA")
     for i, (x, y, w, h) in enumerate(rects): assert im.crop((x, y, x+w, y+h)).tobytes() == frame(i == 5).tobytes()
     check_gutters(im, rects)
     assert cutout.atlas_manifest_rects(out / direction["atlas"], out / "idle-manifest.json") == rects
     diagnostics = json.loads((out / "idle-diagnostics.json").read_text())
     assert "frame_5_touches_canvas_edge_review_for_clipping_or_neighbor_art" in diagnostics["directions"][0]["warnings"]
+    plan["export"] = {"atlas_columns": 16, "atlas_padding_px": 128}
+    path.write_text(json.dumps(plan)); big = base / "assembled-wide"
+    run(SCRIPTS / "assemble_idle.py", "--plan", path, "--output-dir", big)
+    m = json.loads((big / "idle-manifest.json").read_text()); assert m["directions"][0]["atlas_over_4096"]
+    d = json.loads((big / "idle-diagnostics.json").read_text())
+    assert "atlas_exceeds_4096_px_check_target_gpu_limit_or_split" in d["directions"][0]["warnings"]
 
 
 if __name__ == "__main__":

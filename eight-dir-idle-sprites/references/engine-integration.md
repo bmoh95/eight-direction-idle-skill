@@ -21,7 +21,7 @@ Flyer: body centre; the bob is baked into frames (integer px), so do not add an 
 Use the same pivot for all 8 rows; do not re-derive pivots from alpha bounds per frame.
 
 ## Atlas notes
-Each frame has 8 transparent pixels per side by default (16 px between adjacent frames). In
+Each frame has 16 transparent pixels per side by default (32 px between adjacent frames). In
 `atlas_manifest.json`, `cell` is the visible frame canvas, `atlas_cell` is the padded stride,
 `padding_px` is the inset and `frame_rects[direction][frame]` is `[x, y, width, height]`. For the
 key-pose route, use each frame's `atlas_rect` in `idle-manifest.json`. Set the engine's source
@@ -36,6 +36,11 @@ padding is designed for their footprint, and inspect filtered rendering for edge
 and transparent gutters. Inspect every edge-contact warning and neighboring frame at zoom: a
 misplaced arrow already drawn inside a frame cannot be distinguished reliably by padding alone.
 If a packer trims, preserve trim offsets or the pivot shifts per frame.
+
+Padding increases texture dimensions and memory. The packers record `atlas_size_px` and
+`atlas_over_4096`; exceeding 4096 px is a review warning, not a universal GPU limit. Check the
+actual target device's maximum texture size and split clips manually if needed. The packers do not
+automatically split sheets.
 
 ## Timing
 24 fps = 41.67 ms per frame. GIF delays are in 1/100 s (GIF89a spec), so GIF previews alternate

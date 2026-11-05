@@ -73,7 +73,7 @@ def prepare(plan, base, output):
         checked_int(step["duration_ms"], 10, 60000, "duration_ms")
     exports = plan.get("export", {})
     columns = checked_int(exports.get("atlas_columns", 4), 1, 16, "atlas_columns")
-    padding = checked_int(exports.get("atlas_padding_px", 8), 0, 128, "atlas_padding_px")
+    padding = checked_int(exports.get("atlas_padding_px", 16), 0, 128, "atlas_padding_px")
     preview = checked_int(exports.get("preview_max_side", 512), 32, 2048, "preview_max_side")
     directions = plan["directions"]
     if not isinstance(directions, list) or not 1 <= len(directions) <= 16:
@@ -160,6 +160,8 @@ def assemble(plan_path, output):
         width, height = record["size_pixels"]
         stride_x, stride_y = width + 2 * padding, height + 2 * padding
         atlas = Image.new("RGBA", (stride_x * columns, stride_y * math.ceil(len(timeline) / columns)))
+        if max(atlas.size) > 4096:
+            record["warnings"].append("atlas_exceeds_4096_px_check_target_gpu_limit_or_split")
         frames, mappings = [], []
         ratio = min(1, preview / max(width, height))
         view_size = (max(1, round(width * ratio)), max(1, round(height * ratio)))
@@ -198,7 +200,8 @@ def assemble(plan_path, output):
             record["warnings"].append("preview_downscale_or_quantization_lost_motion")
         manifest["directions"].append({"key": key, "source": str(archived.relative_to(output)),
                                        "size_pixels": [width, height], "atlas_padding_px": padding,
-                                       "atlas_cell": [stride_x, stride_y], "display_frame_count": len(timeline),
+                                       "atlas_cell": [stride_x, stride_y], "atlas_size_px": list(atlas.size),
+                                       "atlas_over_4096": max(atlas.size) > 4096, "display_frame_count": len(timeline),
                                        "unique_visible_states": record["unique_visible_states"], "frames": mappings,
                                        "atlas": str((folder / "idle-atlas.png").relative_to(output)),
                                        "preview": str(gif_path.relative_to(output)),

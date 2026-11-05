@@ -220,7 +220,7 @@ Spec format: `templates/idle_spec.ground.example.json`, `templates/idle_spec.fly
 Skill repo content rule: only scripts, templates, docs, style samples and small generic fixtures. Never commit
 game/project character idle packs, atlases, GIFs or generated frame outputs here; they belong in the game repo or a work folder.
 Relative paths inside a spec (`still`, masks, `out_dir`) resolve against the spec file's folder.
-The default atlas has 8 transparent pixels on every side of every frame (16 px between neighbours).
+The default atlas has 16 transparent pixels on every side of every frame (32 px between neighbours).
 Read the exact `frame_rects` / `atlas_rect` and `atlas_cell` from the manifest; do not calculate a
 source rectangle by multiplying only the frame size. `pack_idle.py --padding N` and the key-pose
 plan's `export.atlas_padding_px` can override this. A frame touching its own source-canvas edge

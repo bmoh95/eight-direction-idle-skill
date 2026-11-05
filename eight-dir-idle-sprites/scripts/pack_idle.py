@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Pack idle frames: atlas + engine manifest + review previews.
-Usage: pack_idle.py spec.json [--cell 256] [--game 96] [--padding 8]
+Usage: pack_idle.py spec.json [--cell 256] [--game 96] [--padding 16]
 Writes in <out_dir>/: atlas_<cell>.png, atlas_manifest.json, preview_<dir>.gif (approx timing),
 preview_<dir>_slow.gif, same_phase_sheet.png (8 dirs x sampled phases), game_size_strip.png.
 GIF delays are integer centiseconds, so 24 fps (41.67 ms) cannot be uniform: we alternate 40/40/50 ms
@@ -8,7 +8,7 @@ GIF delays are integer centiseconds, so 24 fps (41.67 ms) cannot be uniform: we 
 import json, os, sys, argparse
 from PIL import Image
 
-ap = argparse.ArgumentParser(); ap.add_argument("spec"); ap.add_argument("--cell", type=int, default=256); ap.add_argument("--game", type=int, default=96); ap.add_argument("--padding", type=int, default=8, help="transparent pixels on each side of every frame")
+ap = argparse.ArgumentParser(); ap.add_argument("spec"); ap.add_argument("--cell", type=int, default=256); ap.add_argument("--game", type=int, default=96); ap.add_argument("--padding", type=int, default=16, help="transparent pixels on each side of every frame")
 A = ap.parse_args(); S = json.load(open(A.spec)); base = os.path.dirname(os.path.abspath(A.spec))
 if A.padding < 0 or A.padding > 128: ap.error("--padding must be between 0 and 128 pixels")
 out = os.path.join(base, S["out_dir"]); T = json.load(open(f"{out}/transforms.json")); n = T["display_frames_per_dir"]; fps = T.get("fps") or S.get("fps") or round(1000 / (sum(T.get("frame_ms", []) or [1000 / 24]) / max(1, len(T.get("frame_ms", []) or [1]))))
@@ -16,6 +16,8 @@ dirs = list(S["directions"]); F = {d: [Image.open(f"{out}/{d}/{d}_{i:03d}.png").
 W, H = F[dirs[0]][0].size; c = A.cell; ch = round(H * c / W); p = A.padding
 if any(f.size != (W, H) for frames in F.values() for f in frames): ap.error("all frames must have the same canvas size")
 stride_x, stride_y = c + 2 * p, ch + 2 * p
+if stride_x * n > 4096 or stride_y * len(dirs) > 4096:
+    print("WARNING: atlas exceeds 4096 px in one dimension; verify target GPU limits or split it", file=sys.stderr)
 atlas = Image.new("RGBA", (stride_x * n, stride_y * len(dirs)))
 rects = {}; edge_contact = []
 for r, d in enumerate(dirs):
@@ -29,7 +31,8 @@ for r, d in enumerate(dirs):
             edge_contact.append({"direction": d, "frame": i, "alpha_bounds": list(bounds)})
 atlas.save(f"{out}/atlas_{c}.png")
 man = {"atlas": f"atlas_{c}.png", "cell": [c, ch], "source_canvas": [W, H], "scale_from_source": c / W,
-       "padding_px": p, "atlas_cell": [stride_x, stride_y], "frame_rects": rects, "edge_contact_frames": edge_contact,
+       "padding_px": p, "atlas_cell": [stride_x, stride_y], "atlas_size_px": list(atlas.size),
+       "atlas_over_4096": max(atlas.size) > 4096, "frame_rects": rects, "edge_contact_frames": edge_contact,
        "rows_directions": dirs, "frames_per_row": n, "fps": fps, "loop": True, "loop_duration_s": n / fps,
        "frame_order": "column i = frame i; no duplicated end frame (frame n-1 -> 0 is the seam)",
        "unique_poses_per_dir": T.get("unique_poses_per_dir"), "display_frames_per_dir": n, "display_frames_total": n * len(dirs),
