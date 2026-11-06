@@ -23,16 +23,12 @@ actually support the requested work; otherwise say what is missing.
    user's duration and frame rate. Plan grounded breathing with feet planted; a winged flyer may
    flap and bob; a floater may bob. Avoid inventing features or independently redrawing every idle
    frame. Review props and masks and make loop boundaries continuous.
-4. Consult [rossark-motion-skill](https://github.com/rossark0/rossark-motion-skill) for small,
-   continuous motion, pivots and follow-through. It is a separate skill and is not automatically
-   installed by this plugin. It supplies motion guidance; its SwiftUI and React Native templates
-   are not a Godot sprite-frame renderer.
-5. If an appropriate execution environment is available and the user authorizes using the full
-   source, follow the original skill's `SKILL.md` and `references/rossark-idle-handoff.md` for its
+4. If an appropriate execution environment is available and the user authorizes using the full
+   source, follow the original skill's `SKILL.md` for its
    mask, `idle_rig.py`, `qa_idle.py`, and `pack_idle.py` workflow. A Rakazo plugin installation
    alone does not provide these files or make them executable. Do not claim they ran without
    evidence. If the environment cannot run them, provide the supported portion and state the limit.
-6. Review actual playback at normal and reduced size, loop seams, alpha edges on light and dark
+5. Review actual playback at normal and reduced size, loop seams, alpha edges on light and dark
    backgrounds, body proportions, props, hands and contact points. Report failed or untested checks.
    Only call an eight-direction pack complete when all requested frames exist and have been reviewed.
 
