@@ -10,11 +10,7 @@
     "new_character",
     "new_monster",
     "partial_edit",
-    "front_face_icon",
-    "directional_stills",
-    "idle_animation",
-    "attack_motion",
-    "hurt_motion"
+    "directional_stills"
    ],
    "required": true,
    "note": null
@@ -53,7 +49,7 @@
    "key": "view",
    "en": "View / directions",
    "ko": "방향",
-   "default": "SE+SW",
+   "default": "8dir",
    "choices": [
     "front",
     "SE",
@@ -62,7 +58,7 @@
     "8dir"
    ],
    "required": false,
-   "note": "the game currently uses SE and SW only"
+   "note": null
   },
   {
    "key": "camera",
@@ -110,32 +106,6 @@
    ],
    "required": false,
    "note": null
-  },
-  {
-   "key": "fps",
-   "en": "Idle fps",
-   "ko": "idle fps",
-   "default": 24,
-   "choices": [
-    12,
-    24,
-    30
-   ],
-   "required": false,
-   "note": "idle only"
-  },
-  {
-   "key": "frames",
-   "en": "Idle frames per direction",
-   "ko": "방향당 idle 프레임",
-   "default": 24,
-   "choices": [
-    12,
-    24,
-    48
-   ],
-   "required": false,
-   "note": "idle only"
   },
   {
    "key": "cutout_engine",

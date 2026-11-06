@@ -27,10 +27,8 @@
   },
   "set_review": {
     "contact_sheet": "",
-    "rotation_preview": "*_rotation_preview.gif",
     "status": ""
   },
-  "frozen_for_idle": false,
   "style_ref": "assets/styles/style-king.png",
   "proportion_class": "chibi_2head"
 }

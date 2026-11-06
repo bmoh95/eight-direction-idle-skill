@@ -1,43 +1,14 @@
 ---
 name: eight-dir-idle-sprites
-description: Plan and review consistent eight-direction character sprites and idle animation, including grounded breathing, flying, and wing flaps.
+description: Generate and review consistent eight-direction character and monster still images with background removal.
 ---
 
-# Eight-direction sprites and idle animation
+# Eight-direction character stills
 
-This is the instructions-only Rakazo edition of the existing
-[eight-dir-idle-sprites skill](https://github.com/bmoh95/eight-direction-idle-skill/tree/main/eight-dir-idle-sprites).
-Rakazo plugin installs do not install or run this repository's Python scripts, images, or binary
-assets. Do not claim that installing this plugin creates sprites, runs `idle_rig.py`, removes a
-background, or provides the bundled art. Use available image and execution tools only when they
-actually support the requested work; otherwise say what is missing.
+This Rakazo edition provides instructions only. Image generation and background removal require suitable tools in the execution environment. Follow the full skill in `eight-dir-idle-sprites/SKILL.md` when its files are available.
 
-1. Establish the requested subject, reference, style, directions, animation, output format and
-   timing. User requirements take priority. Examine the actual reference; preserve its identity,
-   colors, costume, anatomical weapon hand, camera and drawing style unless changes are requested.
-2. For a turnaround, preserve the front and create only the requested missing directions. The default
-   order is S, SW, W, NW, N, NE, E, SE, where SW faces screen left toward the viewer. Review each
-   direction for correct facing, anatomical hand, occlusion, framing and continuity. Mark unseen
-   rear details as assumptions. A rotation preview is not an idle animation.
-3. For idle, use each accepted directional still as the source. Keep one shared phase and the
-   user's duration and frame rate. Plan grounded breathing with feet planted; a winged flyer may
-   flap and bob; a floater may bob. Avoid inventing features or independently redrawing every idle
-   frame. Review props and masks and make loop boundaries continuous.
-4. If an appropriate execution environment is available and the user authorizes using the full
-   source, follow the original skill's `SKILL.md` for its
-   mask, `idle_rig.py`, `qa_idle.py`, and `pack_idle.py` workflow. A Rakazo plugin installation
-   alone does not provide these files or make them executable. Do not claim they ran without
-   evidence. If the environment cannot run them, provide the supported portion and state the limit.
-5. Review actual playback at normal and reduced size, loop seams, alpha edges on light and dark
-   backgrounds, body proportions, props, hands and contact points. Report failed or untested checks.
-   Only call an eight-direction pack complete when all requested frames exist and have been reviewed.
-
-When an available packer creates an atlas, leave at least 16 transparent pixels on each side of
-each frame by default and record exact per-frame source rectangles, padded cell stride and pivot.
-Engine playback must use those rectangles, not the unpadded frame width as the atlas stride. Inspect
-each frame and its neighbours, including arrow release frames: transparent gaps prevent sampling
-adjacent cells but cannot remove foreign pixels already baked into a frame. Rakazo's plugin itself
-does not perform packing or validation.
-
-Walking and attacks require actual pose changes. The idle deformation rig cannot invent them;
-use suitable authoring tools and inspect the result rather than presenting a breathing loop as a walk.
+1. Establish the subject, reference, requested directions, style, camera, prop hand and output format. Preserve the user's requested identity and visual style.
+2. Lock an approved front image. Generate the requested views using the original front and accepted directional anchors as references. The canonical order is S, SW, W, NW, N, NE, E, SE; SW faces screen left toward the viewer.
+3. Inspect each image for facing, gaze, anatomy, identity, proportions, props, occlusion, scale, framing and alpha. Document unseen rear details as assumptions. Do not mirror asymmetric characters without permission.
+4. Prefer native transparency. Where needed, use the full skill's `cutout.py` with rembg and birefnet-general, then inspect edges and enclosed prop gaps. The plugin alone does not install or run that script.
+5. Deliver separate directional PNGs and identify any failed or unverified checks. Report completion only after all requested images have been reviewed.

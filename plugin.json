@@ -2,8 +2,13 @@
   "$schema": "https://agent-plugins.org/schemas/1.1.0/plugin.schema.json",
   "name": "eight-direction-idle-skill",
   "version": "1.0.0",
-  "description": "Plan and review consistent eight-direction character sprites and idle animation.",
+  "description": "Generate and review consistent eight-direction character stills with background removal.",
   "repository": "https://github.com/bmoh95/eight-direction-idle-skill",
   "license": "MIT",
-  "keywords": ["game", "sprites", "animation", "godot"]
+  "keywords": [
+    "game",
+    "sprites",
+    "characters",
+    "background-removal"
+  ]
 }

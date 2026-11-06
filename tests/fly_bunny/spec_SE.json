@@ -1,4 +1,0 @@
-{"name":"bunny-butterfly","locomotion":"fly","fps":24,"duration_s":1.0,"out_dir":"out_SE",
- "channels":{"flap":{"fold":0.30,"perp_fold":0.06,"cycles":1,"phase":0.0},
-             "bob":{"amp_px":10,"cycles":1,"phase":0.0}},
- "directions":{"SE":{"still":"input/SE.png","wing_mask":"masks/SE_wing.png","pivot":"unknown (flyer: body-center anchor, no ground contact)"}}}

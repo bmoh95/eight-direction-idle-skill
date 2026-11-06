@@ -19,7 +19,7 @@ def test_menu_lists_every_option_with_current_and_alternatives():
     c, out = run()
     assert c == 0
     for k in O.OPTIONS: assert f"({k}):" in out, k
-    assert "view): SE+SW   | other: front / SE / SW / 8dir" in out
+    assert "view): 8dir   | other: front / SE / SW / SE+SW" in out
     assert "cutout_engine): rembg   | other: flood" in out
     assert "(required - please tell me)" in out and "이렇게 할까요?" in out
 
@@ -30,12 +30,12 @@ def test_defaults():
 
 
 def test_valid_request_ok_and_merged():
-    c, out = run(req({"task": "idle_animation", "subject": "slime", "view": "8dir"}))
+    c, out = run(req({"task": "directional_stills", "subject": "slime", "view": "8dir"}))
     assert c == 0 and "OK: request is complete" in out and "view): 8dir   | other: front / SE / SW / SE+SW" in out
 
 
 def test_yaml_request():
-    c, out = run(req({"task": "front_face_icon", "subject": "bear"}, ".yaml")); assert c == 0, out
+    c, out = run(req({"task": "new_character", "subject": "bear"}, ".yaml")); assert c == 0, out
 
 
 def test_missing_and_invalid():
@@ -46,7 +46,7 @@ def test_missing_and_invalid():
 
 
 def test_face_presets_marked_as_preset():
-    _, out = run(req({"task": "front_face_icon", "subject": "p", "face_preset": "line_nose"}))
+    _, out = run(req({"task": "new_character", "subject": "p", "face_preset": "line_nose"}))
     assert "preset, not universal" in out and "[x] Beardless humans" in out
     _, out = run(); assert "[ ] Beardless humans" in out and "[x] Eye shine always pure white" in out
 

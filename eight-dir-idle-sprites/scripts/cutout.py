@@ -290,7 +290,7 @@ def atlas_check(path, cell=128, min_px=3, light=232, sat=24, rects=None):
 
 
 def atlas_manifest_rects(path, manifest_path):
-    """Read either pack_idle or assemble_idle rectangles for this exact atlas."""
+    """Read source rectangles from the manifest for this exact atlas."""
     import json
     from pathlib import Path
     manifest_path = Path(manifest_path).resolve()

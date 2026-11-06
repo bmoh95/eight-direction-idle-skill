@@ -1,13 +1,11 @@
 {
   "camera": "plane  // plane (default) | top_down (only if user explicitly asked)",
-  "_note": "Fill BEFORE making frames. Use \"unknown\" or {\"value\":..,\"status\":\"estimated\"} for anything not verified in the image.",
+  "_note": "Fill before creating directional stills. Mark unverified values unknown or estimated.",
   "character": {
     "name": "",
-    "input_mode": "text | front_image | eight_dir_stills | idle_only",
+    "input_mode": "text | front_image | eight_dir_stills",
     "structure": "biped | quadruped | legless | winged_flyer | floater | mech | rock | other",
-    "locomotion": "ground | fly | float",
     "has_wings": false,
-    "has_eyelids": "unknown",
     "style": "bundled sample (style-king crayon chibi) | user override (quote)"
   },
   "references": {
@@ -30,7 +28,7 @@
       0
     ],
     "target_display_px": 0,
-    "scale_note": "same scale for all directions; never per-frame auto-scale"
+    "scale_note": "same scale for all directions"
   },
   "pivot_and_contact": {
     "S": {
@@ -74,23 +72,10 @@
     "palette_hex": [],
     "intentional_particles": []
   },
-  "transforms_policy": "only logged transforms (breathe/flap/bob/rigid); no global scale, no bbox centring, no crop",
   "review": {
     "auto": "",
     "visual_reviewer": "",
-    "engine_playback": "not run | engine+version",
     "needs_review": {}
-  },
-  "rigid_parts": [
-    "head+face",
-    "crown",
-    "weapon"
-  ],
-  "moving_parts": {
-    "breathe": "torso",
-    "flap": "wings",
-    "bob": "whole sprite (flyers only)",
-    "blink": "only if eyelids exist"
   },
   "occluded_or_guessed": {
     "N": [
@@ -98,21 +83,5 @@
     ],
     "NW": [],
     "NE": []
-  },
-  "motion_plan": {
-    "fps": 24,
-    "duration_s": 1.0,
-    "display_frames_per_dir": 24,
-    "unique_poses_per_dir": "24 (procedural) | N (generated keys, list reuse)",
-    "channels": {
-      "breathe": {
-        "amp_px": 0,
-        "cycles": 1,
-        "phase": 0
-      },
-      "flap": {},
-      "bob": {},
-      "blink": "none"
-    }
   }
 }

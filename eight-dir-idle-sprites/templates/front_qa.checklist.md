@@ -19,9 +19,9 @@
 - [ ] File hashed and frozen (`original_bytes_sha256`); later steps use these bytes
 Result: pass / fail (reason) / needs_review (what) — reviewer: ____
 
-- [ ] S6 Eye shine: every eye that faces the camera has a clear white highlight (광) like style-king (glossy dark oval + small white dot). Flat/dead eyes = regenerate the still. Re-check on frame 0 and a mid-cycle frame of every idle.
-- [ ] S7 No background matte: on black and magenta zooms, no white/near-white pocket or rim around weapons/props (bow-string gap, arm/cape gaps, staff loops) or silhouette. `scripts/cutout.py --check` must report 0 on the still, frame 0 and a mid-cycle frame.
+- [ ] S6 Eye shine: every eye that faces the camera has a clear white highlight (광) like style-king (glossy dark oval + small white dot). Flat/dead eyes = regenerate the still. Re-check on each direction.
+- [ ] S7 No background matte: on black and magenta zooms, no white/near-white pocket or rim around weapons/props (bow-string gap, arm/cape gaps, staff loops) or silhouette. `scripts/cutout.py --check` must report 0 on every directional still.
 - [ ] S8 Camera: plane/side view (eye-level, upright on a flat ground line) unless the user explicitly asked for top-down/overhead/탑다운. Unrequested top-down (looking down on head/shoulders, body along a screen diagonal) = reject; plane view when top-down was requested = reject.
-- [ ] S7b Prop cavities: `cutout.py --check STILL --prop-mask <each weapon mask>` = matte_px 0, and zooms of upper + lower bow half / under hand on black and magenta (frames 0, 6, 12) show no white wedge.
-- [ ] S7c Outline fringe: `cutout.py --check` fringe_fail false; contour zooms on black and magenta (frames 0, 6, 12) show no white ring. Note `source_alpha` (native alpha preferred; keyed = fallback).
+- [ ] S7b Prop cavities: `cutout.py --check STILL --prop-mask <each weapon mask>` = matte_px 0, and zooms of upper + lower bow half / under hand on black and magenta (each direction) show no white wedge.
+- [ ] S7c Outline fringe: `cutout.py --check` fringe_fail false; contour zooms on black and magenta (each direction) show no white ring. Note `source_alpha` (native alpha preferred; keyed = fallback).
 - [ ] S9 Facing + gaze: in every non-S direction head, eyes and body share the heading (SE: pupils and face toward screen lower-right, not at the viewer). Front gaze on a diagonal/side/back still = reject. Plane camera rules unchanged; top-down gaze only when top-down was requested.
